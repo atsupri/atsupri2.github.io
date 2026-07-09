@@ -114,13 +114,13 @@
         /* 🗺️ マップ表示システム */
         #map {
             width: 100%;
-            height: 380px;
+            height: 420px;
             background: #ffffff !important;
             border-bottom: 1px solid var(--border);
         }
         .festival-map-image { object-fit: contain !important; }
 
-        /* 📌 Leafletポップアップを「右側」へ小さく配置するカスタム */
+        /* 📌 Leafletポップアップカスタム */
         .leaflet-popup {
             margin-bottom: 15px !important; 
             margin-left: 20px !important;
@@ -160,16 +160,19 @@
         }
         .popup-img-wrapper { 
             width: 100%; 
-            height: 40px; 
+            height: auto;
+            max-height: 80px;
             border-radius: 4px; 
             overflow: hidden; 
             background: #e5e7eb; 
             border: 1px solid #e5e7eb; 
+            cursor: pointer;
         }
         .popup-img { 
             width: 100%; 
             height: 100%; 
-            object-fit: cover; 
+            object-fit: contain; 
+            display: block;
         }
 
         /* 🚻 カスタムピン */
@@ -199,10 +202,10 @@
         .shop-card i { transition: transform 0.2s ease; }
 
         /* アコーディオン展開パーツ */
-        .shop-details { display: none; padding: 0 14px 14px; border-top: 1px dashed var(--border); background: #fafafa; grid-template-columns: 75px 1fr; gap: 12px; align-items: start; }
+        .shop-details { display: none; padding: 0 14px 14px; border-top: 1px dashed var(--border); background: #fafafa; grid-template-columns: 85px 1fr; gap: 12px; align-items: start; }
         .shop-details.open { display: grid; padding-top: 14px; }
-        .logo-dummy { width: 75px; height: 75px; background: #e5e7eb; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; color: #9ca3af; text-align: center; border: 1px solid #d1d5db; overflow: hidden; }
-        .logo-dummy img { width: 100%; height: 100%; object-fit: cover; }
+        .logo-dummy { width: 85px; height: 85px; background: #e5e7eb; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: bold; color: #9ca3af; text-align: center; border: 1px solid #d1d5db; overflow: hidden; }
+        .logo-dummy img { width: 100%; height: 100%; object-fit: contain; background: white; }
         .details-right { display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
         .menu-headline { font-size: 0.75rem; font-weight: bold; color: var(--primary); margin-bottom: 4px; display: block; }
         .menu-text { font-size: 0.8rem; color: #374151; line-height: 1.45; margin-bottom: 8px; }
@@ -390,26 +393,28 @@
     <!-- ⚙️ 動作プログラム（JavaScript）エリア -->
     <script>
         // ★★★ データ編集エリア ★★★
+        // 送っていただいた新しい画像名に修正しました
         const MAP_IMAGES = {
-            '1F': 'map1f.png',
-            '2F': 'map2f.png',
-            '3F': 'map3f.png',
-            '4F': 'map4f.png'
+            '1F': 'map1f.jpg',
+            '2F': 'map2f_2.png',
+            '3F': 'map3f.jpg',
+            '4F': 'map4f_2.png'
         };
 
         const shopData = [
-            { id: 1, floor: '1F', location: '商業教育棟1階', title: '3-7：マーケティング部', genre: '展示', x: 120, y: 150, image: 'waffle.png', menu: '部活で開発した商品の販売と活動報告を行います！' },
-            { id: 2, floor: '1F', location: 'A棟1階', title: '3-2：人形浄瑠璃部', genre: '展示', x: 380, y: 340, image: '', menu: '伝統ある人形浄瑠璃の公演と、人形の展示を行っています。' },
-            { id: 3, floor: '2F', location: 'A棟2階', title: '2-7組：喫茶 美和の館', genre: '食品', x: 410, y: 330, image: 'class-2-7.png', menu: '美味しいワッフルとお飲み物を用意してお待ちしております！' },
-            { id: 4, floor: '3F', location: 'A棟3階', title: '1-1：写真部', genre: '展示', x: 360, y: 340, image: '', menu: '部員が撮影した手作りの一枚を展示中。投票お待ちしています！' },
-            { id: 5, floor: '4F', location: 'A棟4階', title: '軽音楽部', genre: 'アトラクション', x: 280, y: 340, image: '', menu: '4階部室にてアコースティックミニライブを開催中！' }
+            { id: 1, floor: '1F', location: '商業教育棟1階', title: '3-7：マーケティング部', genre: '展示', x: 100, y: 340, image: '', menu: '部活で開発した商品の販売と活動報告を行います！' },
+            { id: 2, floor: '1F', location: 'A棟1階', title: '3-2：人形浄瑠璃部', genre: '展示', x: 410, y: 440, image: '', menu: '伝統ある人形浄瑠璃 of 王子高の公演と、人形の展示を行っています。' },
+            // 💡 2-7組の画像を「class-2-7.png」に変更＆新しい画像の余白に合わせて座標(x, y)をぴったり中央に修正！
+            { id: 3, floor: '2F', location: 'A棟2階', title: '2-7組：喫茶 美和の館', genre: '食品', x: 432, y: 440, image: 'class-2-7.png', menu: '美味しいワッフルとお飲み物を用意してお待ちしております！' },
+            { id: 4, floor: '3F', location: 'A棟3階', title: '1-1：写真部', genre: '展示', x: 410, y: 440, image: '', menu: '部員が撮影した手作りの一枚を展示中。投票お待ちしています！' },
+            { id: 5, floor: '4F', location: 'A棟4階', title: '軽音楽部', genre: 'アトラクション', x: 295, y: 440, image: '', menu: '4階部室にてアコースティックミニライブを開催中！' }
         ];
 
         const facilityData = [
-            { name: "1F 事務室・AED", floor: "1F", x: 360, y: 80, icon: "🚑" },
-            { name: "2F トイレ", floor: "2F", x: 150, y: 220, icon: "🚻" },
-            { name: "3F トイレ", floor: "3F", x: 150, y: 220, icon: "🚻" },
-            { name: "4F トイレ", floor: "4F", x: 150, y: 220, icon: "🚻" }
+            { name: "1F 事務室・AED", floor: "1F", x: 335, y: 640, icon: "🚑" },
+            { name: "2F トイレ", floor: "2F", x: 610, y: 545, icon: "🚻" },
+            { name: "3F トイレ", floor: "3F", x: 610, y: 545, icon: "🚻" },
+            { name: "4F トイレ", floor: "4F", x: 610, y: 545, icon: "🚻" }
         ];
 
         const timelineData = [
@@ -436,8 +441,9 @@
         let markersGroup = [];
         let favorites = JSON.parse(localStorage.getItem('festival_favs')) || [];
 
-        const MAP_WIDTH = 900;
-        const MAP_HEIGHT = 410;
+        // 🗺️ 新しい余白付きのマップ比率（横1000×縦800相当）に合わせて調整
+        const MAP_WIDTH = 1000;
+        const MAP_HEIGHT = 800;
         const MAP_BOUNDS = [[0, 0], [MAP_HEIGHT, MAP_WIDTH]];
 
         window.onload = function() {
@@ -453,7 +459,7 @@
         function initImageMap() {
             map = L.map('map', {
                 crs: L.CRS.Simple,
-                minZoom: -1,
+                minZoom: -2,
                 maxZoom: 1.5,
                 maxBounds: MAP_BOUNDS,
                 maxBoundsViscosity: 1.0,
@@ -466,7 +472,7 @@
 
         function updateMapFloorImage() {
             if (currentImageLayer) { map.removeLayer(currentImageLayer); }
-            const imageUrl = MAP_IMAGES[currentFloor] || 'map1f.png';
+            const imageUrl = MAP_IMAGES[currentFloor] || 'map1f.jpg';
 
             currentImageLayer = L.imageOverlay(imageUrl, MAP_BOUNDS, {
                 className: 'festival-map-image'
@@ -518,9 +524,10 @@
             markersGroup = [];
 
             shopData.filter(s => s.floor === currentFloor).forEach(shop => {
+                // キャッシュ回避用のランダムクエリを追加し、画像読み込みエラー対策を強化
                 const imageHtml = shop.image 
-                    ? `<img src="${shop.image}" class="popup-img" alt="${shop.title}">`
-                    : `<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#e5e7eb;color:#9ca3af;font-size:0.6rem;font-weight:bold;">詳細チェック</div>`;
+                    ? `<img src="${shop.image}?v=${Date.now()}" class="popup-img" alt="${shop.title}">`
+                    : `<div style="display:flex;align-items:center;justify-content:center;height:45px;background:#e5e7eb;color:#9ca3af;font-size:0.6rem;font-weight:bold;">詳細チェック</div>`;
 
                 const popupContent = `
                     <div class="popup-location">${shop.location || (shop.floor + '棟')}</div>
@@ -530,11 +537,10 @@
                     </div>
                 `;
 
-                // 📌 ポップアップを小さくし、autoPanを無効に
                 const marker = L.marker([shop.y, shop.x]).addTo(map)
                     .bindPopup(popupContent, { 
-                        maxWidth: 140, 
-                        minWidth: 120, 
+                        maxWidth: 150, 
+                        minWidth: 130, 
                         autoPan: false 
                     });
                 markersGroup.push(marker);
@@ -598,7 +604,7 @@
 
             filtered.forEach(shop => {
                 const imageListHtml = shop.image 
-                    ? `<img src="${shop.image}" alt="${shop.title}">`
+                    ? `<img src="${shop.image}?v=${Date.now()}" alt="${shop.title}">`
                     : `NO IMAGE`;
 
                 const card = document.createElement('div');
@@ -621,7 +627,7 @@
                             <div class="menu-text">${shop.menu}</div>
                             <div class="card-actions">
                                 <button class="map-go-btn" onclick="panToCoordinates(${shop.x}, ${shop.y}, ${shop.id}, '${shop.floor}')">
-                                    <i class="fa-solid fa-location-arrow"></i> 表示を確定
+                                    <i class="fa-solid fa-location-arrow"></i> 表示を確認
                                 </button>
                             </div>
                         </div>
