@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>王子高 文化祭アプリ</title>
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     
     <style>
@@ -17,7 +19,7 @@
             --bg-light: #f9fafb;
             --border: #e5e7eb;
 
-            /* 🎨 ジャンル別・淡めのカラーテーマ（全体の青白イメージを崩さない配色） */
+            /* 🎨 ジャンル別・淡めのカラーテーマ */
             --color-food-bg: #fef2f2;       /* 淡い赤 */
             --color-food-border: #fca5a5;
             --color-food-text: #b91c1c;
@@ -43,7 +45,48 @@
             overflow-x: hidden;
             padding-top: 56px;
             padding-bottom: 65px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
+        
+        /* 📱 画面レイアウトの最適化 */
+        .app-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .app-page {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+        .app-page.active {
+            display: flex;
+        }
+        
+        /* 🗺️ マップの高さを画面縦幅の【30%】に連動固定 */
+        #map-container {
+            height: 30vh;
+            width: 100%;
+            position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+            background: #ffffff !important;
+            z-index: 1;
+        }
+        
+        /* スクロール可能なリストエリア */
+        .scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
         /* 遅延警告バー */
         .alert-bar {
             position: fixed;
@@ -96,69 +139,68 @@
         .search-bar-wrapper { position: relative; }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); font-size: 0.9rem; }
         #sidebar-search-box { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; background: #f3f4f6; outline: none; }
-        #sidebar-search-box:focus { background: white; border-color: var(--primary); }
-        .sidebar-results-list { max-height: 220px; overflow-y: auto; margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
         
-        /* 検索結果アイテムのジャンル別色分け */
+        .sidebar-results-list { max-height: 200px; overflow-y: auto; margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
         .sidebar-result-item { background: #f9fafb; border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; cursor: pointer; text-align: left; }
         .sidebar-result-item.genre-food { background: var(--color-food-bg); border-color: var(--color-food-border); }
         .sidebar-result-item.genre-exhibit { background: var(--color-exhibit-bg); border-color: var(--color-exhibit-border); }
         .sidebar-result-item.genre-play { background: var(--color-play-bg); border-color: var(--color-play-border); }
-        .sidebar-result-floor { font-size: 0.65rem; font-weight: bold; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px; margin-right: 6px; color: var(--text-main); }
+        .sidebar-result-floor { font-size: 0.65rem; font-weight: bold; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); padding: 2px 4px; border-radius: 3px; margin-right: 6px; }
         .sidebar-result-title { font-size: 0.8rem; font-weight: bold; color: var(--text-main); }
 
-        /* サイドメニューのナビボタン */
-        .sidebar-nav button { width: 100%; background: none; border: none; text-align: left; padding: 10px 12px; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 12px; border-radius: 6px; cursor: pointer; color: var(--text-main); }
+        /* サイドメニューナビ */
+        .sidebar-nav button { width: 100%; background: none; border: none; text-align: left; padding: 10px 12px; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 12px; border-radius: 6px; cursor: pointer; color: var(--text-main); margin-bottom: 4px; }
         .sidebar-nav button:active { background: var(--primary-light); color: var(--primary); }
         .sidebar-divider { font-size: 0.75rem; font-weight: bold; color: var(--text-sub); margin: 14px 0 6px 4px; }
         .sidebar-sub-text { font-size: 0.75rem; color: var(--text-sub); margin: 0 0 6px 4px; font-weight: bold; }
 
-        /* 📍 マップシステム */
-        #map { width: 100%; height: 420px; background: #ffffff !important; border-bottom: 1px solid var(--border); z-index: 1; }
-        .festival-map-image { object-fit: contain !important; }
-        
-        /* 地図のプラスマイナスボタンがヘッダーの下に隠れないように位置を下にずらす */
-        .leaflet-top.leaflet-left { top: 65px !important; }
+        /* 地図ズームボタンがヘッダーにかぶらないように位置を下げる */
+        .leaflet-top.leaflet-left { top: 10px !important; }
 
         /* ポップアップ */
-        .leaflet-popup-content-wrapper { border-radius: 8px !important; padding: 2px 4px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important; }
+        .leaflet-popup-content-wrapper { border-radius: 8px !important; padding: 2px 4px !important; }
         .popup-location { font-size: 0.65rem; font-weight: bold; color: var(--text-sub); }
         .popup-title { font-size: 0.8rem; font-weight: bold; color: var(--text-main); margin-bottom: 4px; }
-        .popup-img-wrapper { width: 100%; max-height: 80px; border-radius: 4px; overflow: hidden; background: #e5e7eb; cursor: pointer; }
-        .popup-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 
-        /* 🎨 カスタムカラーピンのスタイル */
+        /* 📍 ディズニー風：目立たない淡い丸（ドット）ピンのスタイル */
         .custom-pin-icon { display: flex; align-items: center; justify-content: center; }
-        .pin-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 3px 6px rgba(0,0,0,0.25); border: 2.5px solid white; transition: transform 0.2s; }
-        .pin-circle:active { transform: scale(1.1); }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 2px solid white; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        .pin-food { background: var(--color-food-border); border-color: var(--color-food-text); color: var(--color-food-text); }
-        .pin-exhibit { background: var(--color-exhibit-border); border-color: var(--color-exhibit-text); color: var(--color-exhibit-text); }
-        .pin-play { background: var(--color-play-border); border-color: var(--color-play-text); color: var(--color-play-text); }
-        .pin-toilet { background: white; border-color: #3b82f6; color: #3b82f6; }
+        /* ジャンル別の淡いドット色 */
+        .pin-dot.pin-food { background: #fca5a5; border-color: #ef4444; }
+        .pin-dot.pin-exhibit { background: #86efac; border-color: #22c55e; }
+        .pin-dot.pin-dot-play { background: #fde047; border-color: #eab308; }
+        
+        /* 選択された（タップされた）時にポンッと大きくなって濃くなるエフェクト */
+        .pin-dot.selected {
+            transform: scale(2.0);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border-width: 1.5px;
+            z-index: 9999 !important;
+        }
 
-        /* 📌 1階2階のフロア切り替えボタンをスクロールしても上部についてくる（固定）にする */
-        .sticky-map-controls { position: sticky; top: 56px; z-index: 998; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        /* 🟦 施設（トイレなど）はドットと完全区別するために四角マークにする */
+        .pin-square { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; background: white; border: 2px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* フロア切り替え（マップ上部に固定追従） */
+        .sticky-map-controls { position: sticky; top: 0; z-index: 998; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .tab-container { display: flex; padding: 6px; gap: 6px; }
         .tab-btn { flex: 1; border: none; background: #f3f4f6; padding: 10px 0; font-size: 0.85rem; font-weight: bold; border-radius: 6px; color: var(--text-sub); cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: white; }
         
-        /* フィルターセクション */
+        /* フィルター */
         .filter-section { padding: 12px 16px 4px; background: white; }
         .tag-container { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
-        
-        /* タグボタンのジャンル別色分け（淡めカラー） */
         .tag-btn { shrink: 0; border: 1px solid var(--border); background: white; padding: 6px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 20px; cursor: pointer; color: var(--text-main); }
         .tag-btn.active-all { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
         .tag-btn.active-food { background: var(--color-food-bg); color: var(--color-food-text); border-color: var(--color-food-text); }
         .tag-btn.active-exhibit { background: var(--color-exhibit-bg); color: var(--color-exhibit-text); border-color: var(--color-exhibit-text); }
         .tag-btn.active-play { background: var(--color-play-bg); color: var(--color-play-text); border-color: var(--color-play-text); }
 
-        /* リスト・カード */
+        /* 出店リスト */
         .section-title { font-size: 0.95rem; font-weight: bold; padding: 14px 16px 6px; color: var(--text-sub); border-bottom: 2px solid var(--border); margin: 0 16px 10px; padding-left: 0; }
         .shop-list { padding: 0 16px 16px; }
         
-        /* カード全体の淡い色分け背景（テキストは黒字のまま） */
         .shop-card-wrapper { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; background: white; }
         .shop-card-wrapper.genre-food { background: var(--color-food-bg); border-color: var(--color-food-border); }
         .shop-card-wrapper.genre-exhibit { background: var(--color-exhibit-bg); border-color: var(--color-exhibit-border); }
@@ -166,7 +208,7 @@
         
         .shop-card { padding: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
         .shop-loc { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); color: var(--text-main); font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-right: 12px; }
-        .shop-title { flex: 1; font-weight: bold; font-size: 0.9rem; display: flex; flex-direction: column; gap: 2px; color: var(--text-main); } /* 黒字維持 */
+        .shop-title { flex: 1; font-weight: bold; font-size: 0.9rem; display: flex; flex-direction: column; gap: 2px; color: var(--text-main); }
         .shop-genre { font-size: 0.75rem; color: var(--text-sub); margin-top: 1px; }
         
         .shop-details { display: none; padding: 0 14px 14px; border-top: 1px dashed var(--border); background: rgba(255,255,255,0.5); grid-template-columns: 85px 1fr; gap: 12px; padding-top: 14px; }
@@ -201,25 +243,24 @@
         .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 400px; max-height: 80%; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; }
         .modal-header { padding-bottom: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         
-        /* 挨拶・お知らせ表示用 */
         .greeting-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         .greeting-title { font-size: 0.85rem; font-weight: bold; color: var(--primary); margin-bottom: 4px; }
         .greeting-text { font-size: 0.8rem; line-height: 1.5; color: var(--text-main); white-space: pre-wrap; }
 
+        /* スマホ向け案内テキスト */
+        .guide-box { background: #f3f4f6; border-radius: 6px; padding: 10px; font-size: 0.8rem; line-height: 1.4; color: var(--text-main); margin-top: 8px; }
+
         .admin-panel label { font-weight: bold; display: block; margin-top: 10px; font-size: 0.9rem; }
-        .admin-panel select, .admin-panel input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 5px; }
+        .admin-panel select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #d1d5db; margin-top: 5px; }
         .admin-buttons { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
         .admin-btn { border: none; padding: 10px; border-radius: 6px; font-weight: bold; color: white; cursor: pointer; }
         .admin-btn.delay { background: #eab308; }
-        .admin-btn.test { background: #3b82f6; }
         .admin-btn.reset { background: #10b981; }
-
-        .app-page { display: none; }
-        .app-page.active { display: block; }
     </style>
 </head>
 <body>
 
+    <!-- ⚠️ 遅延アラートバー -->
     <div id="global-alert" class="alert-bar" style="display: none;">
         <div class="alert-content">
             <i class="fa-solid fa-triangle-exclamation"></i>
@@ -228,6 +269,7 @@
         <button class="alert-close-btn" onclick="closeAlertBar()">&times;</button>
     </div>
 
+    <!-- 📱 ヘッダー -->
     <header class="app-header">
         <button class="menu-toggle-btn" onclick="toggleSidebar()">
             <i class="fa-solid fa-bars"></i>
@@ -236,6 +278,7 @@
         <div style="width: 40px;"></div>
     </header>
 
+    <!-- 📂 ドロワーサイドメニュー -->
     <div id="menu-overlay" class="menu-overlay" onclick="toggleSidebar()"></div>
     <aside id="sidebar" class="app-sidebar">
         <div class="sidebar-header">
@@ -257,65 +300,91 @@
             </button>
 
             <div class="sidebar-divider">メニュー</div>
-            <button onclick="openModal('modal-notice')"><i class="fa-solid fa-bullhorn"></i> ご挨拶・重要なお知らせ</button>
+            <!-- 👁️ 分離完了ボタン -->
+            <button onclick="openModal('modal-greeting')"><i class="fa-solid fa-face-smile"></i> ご挨拶</button>
+            <button onclick="openModal('modal-rules')"><i class="fa-solid fa-circle-exclamation"></i> お知らせとお願い</button>
             <button onclick="openModal('modal-push')"><i class="fa-solid fa-bell"></i> スマホ通知設定</button>
         </nav>
     </aside>
 
+    <!-- 📦 メインエリア -->
     <main class="app-main">
+        <!-- マップ画面 -->
         <section id="map-page" class="app-page active">
-            <div class="sticky-map-controls">
-                <div class="tab-container">
-                    <button class="tab-btn active" onclick="switchFloor('1F')">1階</button>
-                    <button class="tab-btn" onclick="switchFloor('2F')">2階</button>
-                    <button class="tab-btn" onclick="switchFloor('3F')">3階</button>
-                    <button class="tab-btn" onclick="switchFloor('4F')">4階</button>
-                </div>
+            <!-- 🗺️ 高さが縦幅30%に連動するエリア -->
+            <div id="map-container">
+                <div id="map"></div>
             </div>
             
-            <div id="map"></div>
-            
-            <div class="filter-section">
-                <div class="tag-container">
-                    <button id="tag-all" class="tag-btn active-all" onclick="filterTag('すべて', this)">全て</button>
-                    <button id="tag-food" class="tag-btn" onclick="filterTag('食品販売', this)">🍛 食品販売</button>
-                    <button id="tag-exhibit" class="tag-btn" onclick="filterTag('展示・部活', this)">🎨 展示・部活</button>
-                    <button id="tag-play" class="tag-btn" onclick="filterTag('体験・催し', this)">🎮 体験・催し</button>
+            <!-- 📋 スクロールして下まで見にいけるリストエリア -->
+            <div class="scrollable-content">
+                <div class="sticky-map-controls">
+                    <div class="tab-container">
+                        <button class="tab-btn active" onclick="switchFloor('1F')">1階</button>
+                        <button class="tab-btn" onclick="switchFloor('2F')">2階</button>
+                        <button class="tab-btn" onclick="switchFloor('3F')">3階</button>
+                        <button class="tab-btn" onclick="switchFloor('4F')">4階</button>
+                    </div>
                 </div>
+                
+                <div class="filter-section">
+                    <div class="tag-container">
+                        <button id="tag-all" class="tag-btn active-all" onclick="filterTag('すべて', this)">全て</button>
+                        <button id="tag-food" class="tag-btn" onclick="filterTag('食品販売', this)">🍛 食品販売</button>
+                        <button id="tag-exhibit" class="tag-btn" onclick="filterTag('展示・部活', this)">🎨 展示・部活</button>
+                        <button id="tag-play" class="tag-btn" onclick="filterTag('体験・催し', this)">🎮 体験・催し</button>
+                    </div>
+                </div>
+                <h3 id="floor-title" class="section-title">1Fの出店一覧</h3>
+                <div id="shop-list-container" class="shop-list"></div>
             </div>
-            <h3 id="floor-title" class="section-title">1Fの出店一覧</h3>
-            <div id="shop-list-container" class="shop-list"></div>
         </section>
 
+        <!-- タイムライン画面 -->
         <section id="timeline-page" class="app-page">
             <div class="day-selector">
                 <button id="day1-btn" class="day-btn active" onclick="switchDay(1)">1日目 (校内発表)</button>
                 <button id="day2-btn" class="day-btn" onclick="switchDay(2)">2日目 (一般公開)</button>
             </div>
-            <div class="timeline-wrapper">
-                <div id="timeline-container"></div>
+            <div class="scrollable-content" style="padding-top:10px;">
+                <div id="timeline-container" class="timeline-wrapper" style="padding:0 16px;"></div>
             </div>
         </section>
     </main>
 
+    <!-- 🔔 👁️ 新機能：初アクセス時専用の案内ポップアップ -->
+    <div id="modal-welcome-push" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔔 通知設定のお願い</h3>
+            </div>
+            <p style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 12px;">
+                王子高文化祭アプリへようこそ！<br>
+                ステージの急なタイムテーブル変更や遅延情報などの重大ニュースを画面でお知らせするために、通知設定を有効にしてください。<br><br>
+                ※この設定はメニューの「スマホ通知設定」からいつでも再設定できます。
+            </p>
+            <button style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="closeWelcomeModal()">確認して閉じる</button>
+        </div>
+    </div>
+
+    <!-- 🏬 すべての店舗一覧モーダル -->
     <div id="modal-all-shops" class="modal" onclick="closeModalOnOverlay(event, 'modal-all-shops')">
         <div class="modal-content" style="max-width: 450px;">
             <div class="modal-header">
                 <h3>🏬 全階層の店舗一覧</h3>
                 <button onclick="closeModal('modal-all-shops')">&times;</button>
             </div>
-            <div id="all-shops-modal-container" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px;">
-                </div>
+            <div id="all-shops-modal-container" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
     </div>
 
-    <div id="modal-notice" class="modal" onclick="closeModalOnOverlay(event, 'modal-notice')">
+    <!-- 👨‍🏫 👁️ 分離：ご挨拶モーダル -->
+    <div id="modal-greeting" class="modal" onclick="closeModalOnOverlay(event, 'modal-greeting')">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📢 ご挨拶とお知らせ</h3>
-                <button onclick="closeModal('modal-notice')">&times;</button>
+                <h3>👨‍🏫 ご挨拶</h3>
+                <button onclick="closeModal('modal-greeting')">&times;</button>
             </div>
-            
             <div class="greeting-card">
                 <div class="greeting-title">👨‍🏫 校長先生からのご挨拶</div>
                 <div class="greeting-text">王子高校の文化祭へようこそ！日頃の学習成果や部活動の集大成をぜひお楽しみください。感染症対策と熱中症に気をつけて、最高の思い出を作りましょう。</div>
@@ -324,20 +393,49 @@
                 <div class="greeting-title">👥 文化祭実行委員会より</div>
                 <div class="greeting-text">今年のテーマは「百花繚乱」です！各クラス趣向を凝らした屋台やアトラクションを用意しています。わからないことがあれば、青い腕章をつけた実行委員までお声がけください！</div>
             </div>
-            
-            <div style="font-size: 0.85rem; font-weight: bold; margin: 10px 0 5px; color: var(--text-sub);">📌 重要なお知らせ</div>
+        </div>
+    </div>
+
+    <!-- 📌 👁️ 分離：お知らせとお願いモーダル -->
+    <div id="modal-rules" class="modal" onclick="closeModalOnOverlay(event, 'modal-rules')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📌 お知らせとお願い</h3>
+                <button onclick="closeModal('modal-rules')">&times;</button>
+            </div>
             <ul id="notice-list-container" style="list-style: none; font-size: 0.9rem;"></ul>
         </div>
     </div>
 
-    <div id="modal-push" class="modal" onclick="closeModalOnOverlay(event, 'modal-push')">
-        <div class="modal-content">
-            <div class="modal-header"><h3>🔔 プッシュ通知設定</h3><button onclick="closeModal('modal-push')">&times;</button></div>
-            <p style="font-size: 0.9rem; margin-bottom: 10px;">現在のステータス: <b id="push-status-text">未確認</b></p>
-            <button style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:bold;" onclick="requestNotificationPermission()">通知を有効にする</button>
+    <!-- ⏰ 👁️ 新機能：アプリ復帰時・開いた時の遅延ポップアップ専用告知板 -->
+    <div id="modal-sync-alert" class="modal" onclick="closeModalOnOverlay(event, 'modal-sync-alert')">
+        <div class="modal-content" style="border:2px solid var(--accent);">
+            <div class="modal-header">
+                <h3 style="color:var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> 【遅延速報】</h3>
+                <button onclick="closeModal('modal-sync-alert')">&times;</button>
+            </div>
+            <p id="sync-alert-text" style="font-size:0.95rem; font-weight:bold; line-height:1.6; padding:10px 0; text-align:center;"></p>
+            <button style="width:100%; padding:10px; background:var(--text-main); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="closeModal('modal-sync-alert')">確認しました</button>
         </div>
     </div>
 
+    <!-- 🔔 通知・解除案内モーダル -->
+    <div id="modal-push" class="modal" onclick="closeModalOnOverlay(event, 'modal-push')">
+        <div class="modal-content">
+            <div class="modal-header"><h3>🔔 プッシュ通知設定</h3><button onclick="closeModal('modal-push')">&times;</button></div>
+            <p style="font-size: 0.85rem; margin-bottom: 12px; color:var(--text-sub);">※当機能はアプリ稼働中の速報ポップアップの配信設定を兼ねています。</p>
+            <button style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="alert('アプリ内速報通知システムを有効にしました！')">通知システムをONにする</button>
+            
+            <!-- 👁️ 新機能：スマホ別の通知解除手順の案内板 -->
+            <div style="font-size: 0.8rem; font-weight: bold; margin-top: 15px; color: var(--text-main);">❌ 通知の解除（オフ）方法</div>
+            <div class="guide-box">
+                <b>iPhoneの場合:</b><br>端末の設定アプリ ＞ Safari ＞ 通知 ＞ このサイトの通知をOFFにします。<br><br>
+                <b>Androidの場合:</b><br>ChromeのURLバーの左側にあるアイコン（鍵マーク等）をタップ ＞ 権限 ＞ 通知をブロックにします。
+            </div>
+        </div>
+    </div>
+
+    <!-- 隠し管理者用モーダル -->
     <div id="modal-admin" class="modal" onclick="closeModalOnOverlay(event, 'modal-admin')">
         <div class="modal-content admin-panel">
             <div class="modal-header">
@@ -348,27 +446,27 @@
             <select id="admin-target-select"></select>
             
             <div class="admin-buttons">
-                <button class="admin-btn delay" onclick="triggerDelayNotification(15)">📢 15分遅延を一斉発信</button>
-                <button class="admin-btn delay" onclick="triggerDelayNotification(30)">📢 30分遅延を一斉発信</button>
-                <button class="admin-btn test" onclick="triggerMaintenanceTest()">🛠️ 管理者用テスト通知（自分のみ）</button>
+                <button class="admin-btn delay" onclick="triggerDelayNotification(15)">📢 15分遅延をブロードキャスト</button>
+                <button class="admin-btn delay" onclick="triggerDelayNotification(30)">📢 30分遅延をブロードキャスト</button>
                 <button class="admin-btn reset" onclick="triggerDelayNotification(0)">✅ 通常進行に戻す</button>
             </div>
         </div>
     </div>
 
+    <!-- フッター -->
     <footer class="app-footer">
         <button class="page-tab-btn active" onclick="switchPage('map-page')"><i class="fa-solid fa-map-location-dot"></i><span>校内マップ</span></button>
         <button class="page-tab-btn" onclick="switchPage('timeline-page')"><i class="fa-solid fa-clock"></i><span>タイムライン</span></button>
     </footer>
 
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
+    <!-- ⚙️ 動作ロジック -->
     <script>
         // ==========================================
         // ✨ 【自分でカスタマイズ可能なデータエリア】
         // ==========================================
-        
-        // 階層マップの画像指定（拡張子を .png に統一）
         const MAP_IMAGES = {
             '1F': 'map1f.png',
             '2F': 'map2f.png',
@@ -376,8 +474,6 @@
             '4F': 'map4f.png'
         };
 
-        // 屋台・展示データ（ジャンル名をボタンの表記と完全一致させました）
-        // ジャンル: 「食品販売」, 「展示・部活」, 「体験・催し」
         const shopData = [
             { id: 1, floor: '1F', location: '商業棟1階', title: '3-7：マーケティング部', genre: '食品販売', x: 100, y: 340, image: '', menu: '部活で開発した商品の販売を行います！' },
             { id: 2, floor: '1F', location: 'A棟1階', title: '3-2：人形浄瑠璃部', genre: '展示・部活', x: 410, y: 440, image: '', menu: '伝統ある人形浄瑠璃の公演と人形展示中。' },
@@ -386,28 +482,24 @@
             { id: 5, floor: '4F', location: 'A棟4階', title: '軽音楽部', genre: '体験・催し', x: 295, y: 440, image: '', menu: 'アコースティックミニライブを開催中！' }
         ];
 
-        // 施設・トイレデータ
         const facilityData = [
-            { name: "1F 事務室・AED", floor: "1F", x: 335, y: 640, icon: "🚑", type: "toilet" },
-            { name: "2F トイレ", floor: "2F", x: 610, y: 545, icon: "🚻", type: "toilet" },
-            { name: "3F トイレ", floor: "3F", x: 610, y: 545, icon: "🚻", type: "toilet" },
-            { name: "4F トイレ", floor: "4F", x: 610, y: 545, icon: "🚻", type: "toilet" }
+            { name: "1F 事務室・AED", floor: "1F", x: 335, y: 640, icon: "🚑" },
+            { name: "2F トイレ", floor: "2F", x: 610, y: 545, icon: "🚻" },
+            { name: "3F トイレ", floor: "3F", x: 610, y: 545, icon: "🚻" },
+            { name: "4F トイレ", floor: "4F", x: 610, y: 545, icon: "🚻" }
         ];
 
-        // 体育館・ステージイベントデータ
-        const timelineData = [
+        let timelineData = [
             { id: 1, day: 1, time: "10:00 - 11:00", name: "吹奏楽部：オープニング", delay: 0 },
             { id: 2, day: 1, time: "11:30 - 13:00", name: "軽音楽部：無敵ライブ", delay: 0 },
             { id: 3, day: 2, time: "13:00 - 14:00", name: "ダンス部：ファイナル", delay: 0 }
         ];
 
-        // 挨拶の下に表示される重要なお知らせ
         const noticeData = [
-            { title: "熱中症にご注意ください", sub: "こまめな水分補給をお願いします。" },
-            { title: "落とし物・迷子について", sub: "1階職員室前の本部までお越しください。" }
+            { title: "🔥 熱中症にご注意ください", sub: "こまめな水分補給をお願いします。" },
+            { title: "🎒 落とし物・迷子について", sub: "1階職員室前の本部までお越しください。" }
         ];
 
-        // 管理者室のパスワード
         const ADMIN_PASSWORD = "ouji"; 
 
         // ==========================================
@@ -419,6 +511,8 @@
         let map;
         let currentImageLayer = null;
         let markersGroup = [];
+        let markerObjectsMap = {}; // ピンの個別参照保持用
+        let activeSelectedPin = null; // 現在選択中のドット
         let favorites = JSON.parse(localStorage.getItem('festival_favs')) || [];
         let adminKnockCount = 0;
         let adminKnockTimeout;
@@ -431,19 +525,21 @@
             renderShops();
             renderTimeline();
             initAdminSelect();
-            buildAllShopsModalList(); // すべての店舗モーダルリスト生成
-            updateNotificationStatusDisplay();
-            filterSidebarShops();
-            document.getElementById('notice-list-container').innerHTML = noticeData.map(d => `<li style="margin-bottom:10px;"><b>${d.title}</b><span style="display:block;color:var(--text-sub);font-size:0.8rem;">${d.sub}</span></li>`).join('');
+            buildAllShopsModalList();
+            checkFirstAccessWelcome(); 
             
-            setInterval(syncCloudMock, 3000); 
+            document.getElementById('notice-list-container').innerHTML = noticeData.map(d => `<li class="greeting-card"><b>${d.title}</b><span style="display:block;color:var(--text-sub);font-size:0.8rem;margin-top:4px;">${d.sub}</span></li>`).join('');
+            
+            // ⏰ 3秒毎にリアルタイム自動チェック同期を行う（閉じていた間の遅延も開いた瞬間にここで検知）
+            setInterval(syncCloudAndCheckAlert, 3000);
+            syncCloudAndCheckAlert(); // 初回起動時にも即座にチェック
         };
 
         function initImageMap() {
             if (map) { map.remove(); }
             map = L.map('map', {
                 crs: L.CRS.Simple,
-                minZoom: -1.5,
+                minZoom: -2,
                 maxZoom: 1,
                 maxBounds: [[0, 0], [MAP_HEIGHT, MAP_WIDTH]],
                 maxBoundsViscosity: 1.0,
@@ -451,16 +547,18 @@
                 zoomSnap: 0.1
             });
             updateMapFloorImage();
+
+            // 地図上の何もないところをタップしたらピンの選択（巨大化）を解除する
+            map.on('click', function() {
+                resetActivePinStyle();
+            });
         }
 
         function updateMapFloorImage() {
             if (currentImageLayer) { map.removeLayer(currentImageLayer); }
             const imageUrl = MAP_IMAGES[currentFloor] || 'map1f.png';
 
-            currentImageLayer = L.imageOverlay(imageUrl, [[0, 0], [MAP_HEIGHT, MAP_WIDTH]], {
-                className: 'festival-map-image'
-            }).addTo(map);
-
+            currentImageLayer = L.imageOverlay(imageUrl, [[0, 0], [MAP_HEIGHT, MAP_WIDTH]]).addTo(map);
             map.fitBounds([[0, 0], [MAP_HEIGHT, MAP_WIDTH]]);
             updateMapMarkers();
         }
@@ -481,6 +579,7 @@
                 b.classList.toggle('active', b.innerText === floor || b.getAttribute('onclick')?.includes(`'${floor}'`));
             });
             document.getElementById('floor-title').innerText = `${floor}の出店一覧`;
+            resetActivePinStyle();
             renderShops();
             updateMapFloorImage();
         }
@@ -492,47 +591,71 @@
             renderTimeline();
         }
 
-        // 🎨 ピンの色をジャンル毎に変える処理
+        // 👁️ ディズニー風ピン配置＆タップ拡大システム
         function updateMapMarkers() {
             markersGroup.forEach(m => map.removeLayer(m));
             markersGroup = [];
+            markerObjectsMap = {};
 
             shopData.filter(s => s.floor === currentFloor).forEach(shop => {
-                let pinClass = "pin-exhibit";
-                let pinEmoji = "🎨";
-                if (shop.genre === '食品販売') { pinClass = "pin-food"; pinEmoji = "🍛"; }
-                else if (shop.genre === '体験・催し') { pinClass = "pin-play"; pinEmoji = "🎮"; }
+                let pinColorClass = "pin-exhibit";
+                if (shop.genre === '食品販売') pinColorClass = "pin-food";
+                else if (shop.genre === '体験・催し') pinColorClass = "pin-dot-play";
 
                 const customIcon = L.divIcon({
-                    html: `<div class="pin-circle ${pinClass}">${pinEmoji}</div>`,
+                    html: `<div class="pin-dot ${pinColorClass}" id="marker-dot-${shop.id}"></div>`,
                     className: 'custom-pin-icon',
-                    iconSize: [34, 34],
-                    iconAnchor: [17, 17]
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
                 });
-
-                const imageHtml = shop.image 
-                    ? `<img src="${shop.image}?v=${Date.now()}" class="popup-img" alt="${shop.title}">`
-                    : `<div style="display:flex;align-items:center;justify-content:center;height:45px;background:#e5e7eb;color:#9ca3af;font-size:0.6rem;font-weight:bold;">詳細チェック</div>`;
 
                 const popupContent = `
                     <div class="popup-location">${shop.location}</div>
                     <div class="popup-title">${shop.title}</div>
-                    <div class="popup-img-wrapper" onclick="openShopDetailFromMap(${shop.id})">${imageHtml}</div>
                 `;
 
-                const marker = L.marker([shop.y, shop.x], {icon: customIcon}).addTo(map).bindPopup(popupContent, { maxWidth: 150, minWidth: 130, autoPan: false });
+                const marker = L.marker([shop.y, shop.x], {icon: customIcon}).addTo(map).bindPopup(popupContent, { maxWidth: 150, minWidth: 120, autoPan: false });
+                
+                marker.on('click', function() {
+                    highlightPin(shop.id);
+                    openShopDetailFromMap(shop.id);
+                });
+
                 markersGroup.push(marker);
+                markerObjectsMap[shop.id] = marker;
             });
 
+            // 🟦 施設（トイレなど）は四角マークで完全区別
             facilityData.filter(f => f.floor === currentFloor).forEach(facility => {
-                const customIcon = L.divIcon({ html: `<div class="pin-circle pin-toilet">${facility.icon}</div>`, className: 'custom-pin-icon', iconSize: [34, 34], iconAnchor: [17, 17] });
+                const customIcon = L.divIcon({
+                    html: `<div class="pin-square">${facility.icon}</div>`,
+                    className: 'custom-pin-icon',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
                 const marker = L.marker([facility.y, facility.x], {icon: customIcon}).addTo(map).bindPopup(`<b>${facility.name}</b>`, { autoPan: false });
                 markersGroup.push(marker);
             });
         }
 
+        function highlightPin(shopId) {
+            resetActivePinStyle();
+            const dotEl = document.getElementById(`marker-dot-${shopId}`);
+            if (dotEl) {
+                dotEl.classList.add('selected');
+                activeSelectedPin = dotEl;
+            }
+        }
+
+        function resetActivePinStyle() {
+            if (activeSelectedPin) {
+                activeSelectedPin.classList.remove('selected');
+                activeSelectedPin = null;
+            }
+        }
+
         function openShopDetailFromMap(shopId) {
-            map.closePopup();
+            document.querySelectorAll('.shop-details').forEach(d => d.classList.remove('open'));
             const detailDiv = document.getElementById(`details-${shopId}`);
             if (detailDiv) {
                 detailDiv.classList.add('open');
@@ -540,7 +663,6 @@
             }
         }
 
-        // 🎨 下の一覧リストカードもジャンル別に淡い背景色にする処理（文字は黒）
         function renderShops() {
             const container = document.getElementById('shop-list-container');
             container.innerHTML = '';
@@ -563,14 +685,14 @@
                     <div class="shop-card" onclick="toggleAccordion(${shop.id})">
                         <span class="shop-loc">${shop.floor}</span>
                         <div class="shop-title">${shop.title}<span class="shop-genre">${badgeEmoji} ${shop.genre}</span></div>
-                        <i class="fa-solid fa-chevron-down" style="color:#9ca3af;" id="arrow-${shop.id}"></i>
+                        <i class="fa-solid fa-chevron-down" style="color:#9ca3af;"></i>
                     </div>
                     <div class="shop-details" id="details-${shop.id}">
                         <div class="logo-dummy">${shop.image ? `<img src="${shop.image}">` : 'NO IMAGE'}</div>
                         <div>
-                            <span style="font-size:0.75rem; font-weight:bold; color:var(--primary);">📋 メニュー</span>
+                            <span style="font-size:0.75rem; font-weight:bold; color:var(--primary);">📋 メメニュー</span>
                             <div style="font-size:0.8rem; margin-bottom:8px; color:var(--text-main);">${shop.menu}</div>
-                            <button class="map-go-btn" onclick="panToCoordinates(${shop.x}, ${shop.y}, ${shop.id}, '${shop.floor}')">📌 マップで見る</button>
+                            <button class="map-go-btn" onclick="panToCoordinates(${shop.x}, ${shop.y}, ${shop.id}, '${shop.floor}')">📌 マップ上で選択</button>
                         </div>
                     </div>
                 `;
@@ -580,8 +702,15 @@
 
         function panToCoordinates(x, y, shopId, targetFloor) {
             if (currentFloor !== targetFloor) { switchFloor(targetFloor); }
-            setTimeout(() => { map.panTo([y, x]); }, 200);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { 
+                map.panTo([y, x]);
+                highlightPin(shopId);
+                if (markerObjectsMap[shopId]) {
+                    markerObjectsMap[shopId].openPopup();
+                }
+            }, 250);
+            const scrollArea = document.querySelector('.scrollable-content');
+            if (scrollArea) scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function toggleAccordion(id) {
@@ -589,18 +718,13 @@
             detail.classList.toggle('open');
         }
 
-        // 🎨 上部のフィルター切り替えボタンの選択色をジャンルに合わせる処理
         function filterTag(tag, element) {
             selectedTag = tag;
-            document.querySelectorAll('.tag-btn').forEach(b => {
-                b.className = "tag-btn"; // クラス名リセット
-            });
-            
+            document.querySelectorAll('.tag-btn').forEach(b => b.className = "tag-btn");
             if(tag === 'すべて') element.classList.add('active-all');
             else if(tag === '食品販売') element.classList.add('active-food');
             else if(tag === '展示・部活') element.classList.add('active-exhibit');
             else if(tag === '体験・催し') element.classList.add('active-play');
-
             renderShops();
         }
 
@@ -617,18 +741,15 @@
 
                 const item = document.createElement('button');
                 item.className = `sidebar-result-item ${genreClass}`;
-                item.onclick = () => { toggleSidebar(); switchFloor(shop.floor); setTimeout(() => { openShopDetailFromMap(shop.id); }, 300); };
+                item.onclick = () => { toggleSidebar(); switchFloor(shop.floor); setTimeout(() => { panToCoordinates(shop.x, shop.y, shop.id, shop.floor); }, 300); };
                 item.innerHTML = `<div><span class="sidebar-result-floor">${shop.floor}</span><span class="sidebar-result-title">${shop.title}</span></div>`;
                 resultsContainer.appendChild(item);
             });
         }
 
-        // 👁️ 新機能：「すべての店舗の一覧」を色別・順序通りにモーダル生成する処理
         function buildAllShopsModalList() {
             const container = document.getElementById('all-shops-modal-container');
             container.innerHTML = '';
-
-            // 食品販売 -> 展示・部活 -> 体験・催し の順番でソート
             const order = { '食品販売': 1, '展示・部活': 2, '体験・催し': 3 };
             const sortedShops = [...shopData].sort((a, b) => order[a.genre] - order[b.genre]);
 
@@ -640,19 +761,11 @@
 
                 const btn = document.createElement('button');
                 btn.className = `sidebar-result-item ${genreClass}`;
-                btn.style.width = "100%";
-                btn.style.display = "block";
-                btn.onclick = () => { 
-                    closeModal('modal-all-shops'); 
-                    switchFloor(shop.floor); 
-                    setTimeout(() => { openShopDetailFromMap(shop.id); }, 300); 
-                };
+                btn.style.width = "100%"; btn.style.display = "block"; btn.style.marginBottom = "4px";
+                btn.onclick = () => { closeModal('modal-all-shops'); switchFloor(shop.floor); setTimeout(() => { panToCoordinates(shop.x, shop.y, shop.id, shop.floor); }, 300); };
                 btn.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <span class="sidebar-result-floor">${shop.floor}</span>
-                            <span class="sidebar-result-title">${shop.title}</span>
-                        </div>
+                        <div><span class="sidebar-result-floor">${shop.floor}</span><span class="sidebar-result-title">${shop.title}</span></div>
                         <span style="font-size:0.7rem; color:var(--text-sub); font-weight:bold;">${badgeEmoji} ${shop.genre}</span>
                     </div>
                 `;
@@ -693,50 +806,40 @@
             if (adminKnockCount >= 5) {
                 adminKnockCount = 0;
                 const pass = prompt("管理者パスワードを入力してください:");
-                if (pass === ADMIN_PASSWORD) {
-                    openModal('modal-admin');
-                } else if(pass !== null) {
-                    alert("パスワードが違います。");
-                }
+                if (pass === ADMIN_PASSWORD) openModal('modal-admin');
+                else if(pass !== null) alert("パスワードが違います。");
             }
             adminKnockTimeout = setTimeout(() => { adminKnockCount = 0; }, 2000);
         }
 
-        function updateNotificationStatusDisplay() {
-            const statusText = document.getElementById('push-status-text');
-            if (!("Notification" in window)) { statusText.innerText = "非対応デバイス"; return; }
-            statusText.innerText = Notification.permission === "granted" ? "オン（受信可能）" : "未許可";
+        // 👁️ 初アクセス時の案内表示ロジック
+        function checkFirstAccessWelcome() {
+            const hasSeen = localStorage.getItem('festival_welcome_seen');
+            if (!hasSeen) {
+                setTimeout(() => {
+                    document.getElementById('modal-welcome-push').classList.add('show');
+                }, 800);
+            }
         }
-
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) return;
-            Notification.requestPermission().then(() => { updateNotificationStatusDisplay(); });
+        function closeWelcomeModal() {
+            localStorage.setItem('festival_welcome_seen', 'true');
+            closeModal('modal-welcome-push');
         }
 
         function triggerDelayNotification(minutes) {
             const targetName = document.getElementById('admin-target-select').value;
-            const cloudPayload = { type: "delay", target: targetName, delay: minutes, timestamp: Date.now() };
-            localStorage.setItem('festival_cloud_broadcast', JSON.stringify(cloudPayload));
-            alert(`${targetName} の ${minutes}分遅延データを送信しました。全端末へ同期されます。`);
+            const broadcastPayload = { target: targetName, delay: minutes, timestamp: Date.now() };
+            localStorage.setItem('festival_live_broadcast', JSON.stringify(broadcastPayload));
+            alert(`【送信完了】${targetName}の${minutes}分遅延速報を配信しました。`);
             closeModal('modal-admin');
+            syncCloudAndCheckAlert(); 
         }
 
-        function triggerMaintenanceTest() {
-            if (Notification.permission === "granted") {
-                new Notification("【管理者テスト】通知システム稼働中", {
-                    body: "この通知は管理者専用です。一般ユーザーの端末は鳴っていません。",
-                    icon: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/wrench.svg"
-                });
-            } else {
-                alert("ブラウザの通知設定を許可してからお試しください。設定は正常です。");
-            }
-        }
-
-        function syncCloudMock() {
-            const raw = localStorage.getItem('festival_cloud_broadcast');
+        // ⏰ 👁️ 新型：アプリ復帰・起動時にも完全連動する「ポップアップ割り込みシステム」
+        function syncCloudAndCheckAlert() {
+            const raw = localStorage.getItem('festival_live_broadcast');
             if (!raw) return;
             const data = JSON.parse(raw);
-            if (Date.now() - data.timestamp > 10000) return;
 
             timelineData.forEach(slot => {
                 if (slot.name === data.target) {
@@ -744,16 +847,21 @@
                         slot.delay = data.delay;
                         renderTimeline();
                         
+                        // 上部バーの更新
                         const alertBar = document.getElementById('global-alert');
-                        document.getElementById('alert-message').innerText = data.delay > 0 ? `遅延中: ${data.target} (${data.delay}分遅れ)` : "全ステージ通常通り";
+                        document.getElementById('alert-message').innerText = data.delay > 0 ? `遅延発生: ${data.target} (${data.delay}分遅れ)` : "全ステージ通常通り";
                         alertBar.style.display = 'flex';
 
-                        const isFav = favorites.includes(slot.id);
-                        if (isFav && Notification.permission === "granted") {
-                            new Notification("お気に入りステージの遅延連絡", {
-                                body: `${data.target} の開始時刻に ${data.delay}分 の遅れが発生しています。`,
-                                tag: "delay-alert"
-                            });
+                        // 👁️ サイトを開いていなかった間に来た変更も、開いた瞬間に画面中央に強制ポップアップで割り込む！
+                        const lastSeenPopupKey = `popup_seen_${data.target}_${data.delay}_${data.timestamp}`;
+                        if (!localStorage.getItem(lastSeenPopupKey)) {
+                            const msg = data.delay > 0 
+                                ? `【進行変更】\nお気に入りや注目のステージ「${data.target}」に、現在【${data.delay}分】の遅れが発生しています！スケジュールを確認してください。` 
+                                : `【復旧連絡】\n遅延していた「${data.target}」は、現在通常通りの進行に戻りました！`;
+                            
+                            document.getElementById('sync-alert-text').innerText = msg;
+                            document.getElementById('modal-sync-alert').classList.add('show');
+                            localStorage.setItem(lastSeenPopupKey, 'true'); // 何回も出ないようにロック
                         }
                     }
                 }
