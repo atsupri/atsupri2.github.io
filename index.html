@@ -80,27 +80,11 @@
             z-index: 1;
         }
         
-        /* 📋 分かりやすいスクロールバー付きのリストエリア */
+        /* スクロール可能なリストエリア */
         .scrollable-content {
             flex: 1;
-            overflow-y: scroll; /* 常にバーを表示させて分かりやすく */
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-        }
-        /* スクロールバーのカスタマイズ（店舗増量対応） */
-        .scrollable-content::-webkit-scrollbar {
-            width: 8px;
-        }
-        .scrollable-content::-webkit-scrollbar-track {
-            background: #f3f4f6;
-            border-radius: 4px;
-        }
-        .scrollable-content::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 4px;
-            border: 1px solid #f3f4f6;
-        }
-        .scrollable-content::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
         }
   
         /* 遅延警告バー */
@@ -173,77 +157,44 @@
         /* 地図ズームボタン */
         .leaflet-top.leaflet-left { top: 10px !important; }
   
-        /* 💬 ポップアップ（1行最大13文字程度に制限・可変） */
+        /* ポップアップ */
         .leaflet-popup-content-wrapper { border-radius: 8px !important; padding: 2px 4px !important; }
-        .leaflet-popup-content {
-            width: max-content !important;
-            max-width: 13em !important; /* 13文字分の幅に制限 */
-            word-break: break-all !important; /* 枠外への飛び出し防止 */
-            margin: 8px 12px !important;
-        }
         .popup-location { font-size: 0.65rem; font-weight: bold; color: var(--text-sub); }
         .popup-title { font-size: 0.8rem; font-weight: bold; color: var(--text-main); margin-bottom: 4px; }
   
         /* 📍 淡い丸（ドット）ピンのスタイル */
-        .custom-pin-icon { display: flex; align-items: center; justify-content: center; position: relative; }
-        .pin-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 2px solid white; transition: all 0.2s ease; }
+        .custom-pin-icon { display: flex; align-items: center; justify-content: center; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 2px solid white; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
         /* ジャンル別の淡いドット色 */
         .pin-dot.pin-food { background: #fca5a5; border-color: #ef4444; }
         .pin-dot.pin-exhibit { background: #86efac; border-color: #22c55e; }
         .pin-dot.pin-dot-play { background: #fde047; border-color: #eab308; }
         
-        /* 🟦 施設（トイレなど）の四角マーク */
-        .pin-square { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; background: white; border: 2px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s ease; }
-  
-        /* 🕶️ 未選択ピンの透明化処理 */
-        #map.has-selection .pin-dot:not(.selected),
-        #map.has-selection .pin-square:not(.selected-facility) {
-            opacity: 0.35;
-        }
-
         /* タップされた時にポンッと大きくなって濃くなるエフェクト */
         .pin-dot.selected {
             transform: scale(2.0);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             border-width: 1.5px;
-            opacity: 1.0 !important;
             z-index: 9999 !important;
         }
-        .pin-square.selected-facility {
-            transform: scale(1.3);
-            border-color: #1d4ed8;
-            opacity: 1.0 !important;
-            z-index: 9999 !important;
-        }
-
-        /* 体育館用の小さな遅延バッジ */
-        .gym-delay-badge {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #dc2626;
-            color: white;
-            font-size: 10px;
-            padding: 1px 4px;
-            border-radius: 4px;
-            white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-weight: bold;
-            display: none;
-        }
+  
+        /* 🟦 施設（トイレなど）の四角マーク */
+        .pin-square { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; background: white; border: 2px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
   
         /* フロア切り替え */
         .sticky-map-controls { position: sticky; top: 0; z-index: 998; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .tab-container { display: flex; padding: 6px; gap: 6px; }
-        .tab-btn { flex: 1; border: none; background: #f3f4f6; padding: 10px 0; font-size: 0.85rem; font-weight: bold; border-radius: 6px; color: var(--text-sub); cursor: pointer; }
+        /* 🔄 横スクロールできるように修正 */
+        .tab-container { display: flex; padding: 6px; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        /* 🔄 潰れないように flex-shrink: 0 を指定 */
+        .tab-btn { flex: 1; flex-shrink: 0; min-width: 75px; border: none; background: #f3f4f6; padding: 10px 0; font-size: 0.85rem; font-weight: bold; border-radius: 6px; color: var(--text-sub); cursor: pointer; }
         .tab-btn.active { background: var(--primary); color: white; }
         
         /* フィルター */
         .filter-section { padding: 12px 16px 4px; background: white; }
-        .tag-container { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
-        .tag-btn { shrink: 0; border: 1px solid var(--border); background: white; padding: 6px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 20px; cursor: pointer; color: var(--text-main); }
+        .tag-container { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+        /* 🔄 shrink: 0; から flex-shrink: 0; に修正してスクロール領域を確保 */
+        .tag-btn { flex-shrink: 0; border: 1px solid var(--border); background: white; padding: 6px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 20px; cursor: pointer; color: var(--text-main); }
         .tag-btn.active-all { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
         .tag-btn.active-food { background: var(--color-food-bg); color: var(--color-food-text); border-color: var(--color-food-text); }
         .tag-btn.active-exhibit { background: var(--color-exhibit-bg); color: var(--color-exhibit-text); border-color: var(--color-exhibit-text); }
@@ -259,13 +210,12 @@
         .shop-card-wrapper.genre-play { background: var(--color-play-bg); border-color: var(--color-play-border); }
         
         .shop-card { padding: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .shop-loc { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); color: var(--text-main); font-size: 0.7rem; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-right: 12px; }
+        .shop-loc { background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.1); color: var(--text-main); font-size: 0.7 logicrem; font-weight: bold; padding: 3px 6px; border-radius: 4px; margin-right: 12px; }
         .shop-title { flex: 1; font-weight: bold; font-size: 0.9rem; display: flex; flex-direction: column; gap: 2px; color: var(--text-main); }
         .shop-genre { font-size: 0.75rem; color: var(--text-sub); margin-top: 1px; }
         
         .shop-details { display: none; padding: 0 14px 14px; border-top: 1px dashed var(--border); background: rgba(255,255,255,0.5); grid-template-columns: 85px 1fr; gap: 12px; padding-top: 14px; }
         .shop-details.open { display: grid; }
-        .shop-menu-text { font-size: 0.8rem; margin-bottom: 8px; color: var(--text-main); white-space: pre-wrap; word-break: break-all; }
         .logo-dummy { width: 85px; height: 85px; background: #e5e7eb; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: #9ca3af; overflow: hidden; border: 1px solid #d1d5db; }
         .logo-dummy img { width: 100%; height: 100%; object-fit: contain; }
         
@@ -273,8 +223,9 @@
         .map-go-btn i { color: white !important; font-size: 0.85rem; }
   
         /* タイムライン */
-        .day-selector { display: flex; background: white; border-bottom: 1px solid var(--border); padding: 8px 16px; gap: 8px; }
-        .day-btn { flex: 1; border: 1px solid var(--border); background: white; padding: 8px 0; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; }
+        /* 🔄 タイムテーブルが増えてもいいように横スクロール対応に修正 */
+        .day-selector { display: flex; background: white; border-bottom: 1px solid var(--border); padding: 8px 16px; gap: 8px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .day-btn { flex: 1; flex-shrink: 0; min-width: 140px; border: 1px solid var(--border); background: white; padding: 8px 0; font-size: 0.85rem; font-weight: bold; border-radius: 6px; cursor: pointer; }
         .day-btn.active { background: #374151; color: white; }
         .timeline-wrapper { padding: 20px 16px; }
         .time-slot { background: white; border: 1px solid var(--border); border-left: 4px solid var(--primary); padding: 14px; border-radius: 0 8px 8px 0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -343,7 +294,7 @@
                 <i class="fa-solid fa-magnifying-glass search-icon"></i>
                 <input type="text" id="sidebar-search-box" placeholder="全階層からお店を検索..." oninput="filterSidebarShops()">
             </div>
-            <div id="sidebar-search-results" class="sidebar-results-list"/>
+            <div id="sidebar-search-results" class="sidebar-results-list"></div>
         </div>
         
         <nav class="sidebar-nav">
@@ -363,18 +314,16 @@
     <main class="app-main">
         <!-- マップ画面 -->
         <section id="map-page" class="app-page active">
+            <!-- 🗺️ 高さが縦幅35%に連動するエリア -->
             <div id="map-container">
                 <div id="map"></div>
             </div>
             
+            <!-- 📋 リストエリア -->
             <div class="scrollable-content">
                 <div class="sticky-map-controls">
-                    <div class="tab-container">
-                        <button class="tab-btn active" onclick="switchFloor('1F')">1階</button>
-                        <button class="tab-btn" onclick="switchFloor('2F')">2階</button>
-                        <button class="tab-btn" onclick="switchFloor('3F')">3階</button>
-                        <button class="tab-btn" onclick="switchFloor('4F')">4階</button>
-                    </div>
+                    <!-- 🔄 JavaScriptから動的にフロアを生成するため中身を空に -->
+                    <div id="floor-tab-container" class="tab-container"></div>
                 </div>
                 
                 <div class="filter-section">
@@ -387,80 +336,113 @@
                 </div>
                 <h3 id="floor-title" class="section-title">1Fの出店一覧</h3>
                 <div id="shop-list-container" class="shop-list"></div>
-            </div>
-        </section>
+            </section>
   
         <!-- タイムライン画面 -->
         <section id="timeline-page" class="app-page">
-            <div class="day-selector">
-                <button id="day1-btn" class="day-btn active" onclick="switchDay(1)">1日目 (校内発表)</button>
-                <button id="day2-btn" class="day-btn" onclick="switchDay(2)">2日目 (一般公開)</button>
-            </div>
+            <!-- 🔄 動的生成対応：日付切り替え用コンテナに変更 -->
+            <div id="day-tab-container" class="day-selector"></div>
             <div class="scrollable-content" style="padding-top:10px;">
                 <div id="timeline-container" class="timeline-wrapper" style="padding:0 16px;"></div>
             </div>
         </section>
     </main>
   
-    <!-- 各種モーダル -->
+    <!-- 初アクセス時専用の案内ポップアップ -->
     <div id="modal-welcome-push" class="modal">
         <div class="modal-content">
-            <div class="modal-header"><h3>🔔 通知設定のお願い</h3></div>
+            <div class="modal-header">
+                <h3>🔔 通知設定のお願い</h3>
+            </div>
             <p style="font-size: 0.85rem; line-height: 1.5; margin-bottom: 12px;">
-                王子高文化祭アプリへようこそ！<br>ステージの遅延情報などを画面でお知らせするため、通知設定をご確認ください。
+                王子高文化祭アプリへようこそ！<br>
+                ステージの急なタイムテーブル変更や遅延情報などの重大ニュースを画面でお知らせするために、通知設定を有効にしてください。<br><br>
+                ※この設定はメニューの「スマホ通知設定」からいつでも再設定できます。
             </p>
             <button style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="closeWelcomeModal()">確認して閉じる</button>
         </div>
     </div>
   
+    <!-- すべての店舗一覧モーダル -->
     <div id="modal-all-shops" class="modal" onclick="closeModalOnOverlay(event, 'modal-all-shops')">
         <div class="modal-content" style="max-width: 450px;">
-            <div class="modal-header"><h3>🏬 全階層の店舗一覧</h3><button onclick="closeModal('modal-all-shops')">&times;</button></div>
-            <div id="all-shops-modal-container" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px;" />
+            <div class="modal-header">
+                <h3>🏬 全階層の店舗一覧</h3>
+                <button onclick="closeModal('modal-all-shops')">&times;</button>
+            </div>
+            <div id="all-shops-modal-container" style="overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
     </div>
   
+    <!-- ご挨拶モーダル -->
     <div id="modal-greeting" class="modal" onclick="closeModalOnOverlay(event, 'modal-greeting')">
         <div class="modal-content">
-            <div class="modal-header"><h3>👨‍🏫 ご挨拶</h3><button onclick="closeModal('modal-greeting')">&times;</button></div>
+            <div class="modal-header">
+                <h3>👨‍🏫 ご挨拶</h3>
+                <button onclick="closeModal('modal-greeting')">&times;</button>
+            </div>
             <div class="greeting-card">
                 <div class="greeting-title">👨‍🏫 校長先生からのご挨拶</div>
-                <div class="greeting-text">王子高校の文化祭へようこそ！日頃の学習成果や部活動の集大成をぜひお楽しみください。</div>
+                <div class="greeting-text">王子高校の文化祭へようこそ！日頃の学習成果や部活動の集大成をぜひお楽しみください。感染症対策と熱中症に気をつけて、最高の思い出を作りましょう。</div>
+            </div>
+            <div class="greeting-card">
+                <div class="greeting-title">👥 文化祭実行委員会より</div>
+                <div class="greeting-text">今年のテーマは「百花繚乱」です！各クラス趣向を凝らした屋台やアトラクションを用意しています。わからないことがあれば、青い腕章をつけた実行委員までお声がけください！</div>
             </div>
         </div>
     </div>
   
+    <!-- お知らせとお願いモーダル -->
     <div id="modal-rules" class="modal" onclick="closeModalOnOverlay(event, 'modal-rules')">
         <div class="modal-content">
-            <div class="modal-header"><h3>📌 お知らせとお願い</h3><button onclick="closeModal('modal-rules')">&times;</button></div>
-            <ul id="notice-list-container" style="list-style: none; font-size: 0.9rem;" />
+            <div class="modal-header">
+                <h3>📌 お知らせとお願い</h3>
+                <button onclick="closeModal('modal-rules')">&times;</button>
+            </div>
+            <ul id="notice-list-container" style="list-style: none; font-size: 0.9rem;"></ul>
         </div>
     </div>
   
+    <!-- 遅延ポップアップ専用告知板 -->
     <div id="modal-sync-alert" class="modal" onclick="closeModalOnOverlay(event, 'modal-sync-alert')">
         <div class="modal-content" style="border:2px solid var(--accent);">
-            <div class="modal-header"><h3 style="color:var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> 【遅延速報】</h3><button onclick="closeModal('modal-sync-alert')">&times;</button></div>
+            <div class="modal-header">
+                <h3 style="color:var(--accent);"><i class="fa-solid fa-triangle-exclamation"></i> 【遅延速報】</h3>
+                <button onclick="closeModal('modal-sync-alert')">&times;</button>
+            </div>
             <p id="sync-alert-text" style="font-size:0.95rem; font-weight:bold; line-height:1.6; padding:10px 0; text-align:center;"></p>
             <button style="width:100%; padding:10px; background:var(--text-main); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="closeModal('modal-sync-alert')">確認しました</button>
         </div>
     </div>
   
+    <!-- 通知・解除案内モーダル -->
     <div id="modal-push" class="modal" onclick="closeModalOnOverlay(event, 'modal-push')">
         <div class="modal-content">
             <div class="modal-header"><h3>🔔 プッシュ通知設定</h3><button onclick="closeModal('modal-push')">&times;</button></div>
-            <button style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="alert('有効にしました')">通知システムをONにする</button>
+            <p style="font-size: 0.85rem; margin-bottom: 12px; color:var(--text-sub);">※当機能はアプリ稼働中の速報ポップアップの配信設定を兼ねています。</p>
+            <button style="width:100%; padding:12px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer;" onclick="alert('アプリ内速報通知システムを有効にしました！')">通知システムをONにする</button>
+            <div style="font-size: 0.8rem; font-weight: bold; margin-top: 15px; color: var(--text-main);">❌ 通知の解除（オフ）方法</div>
+            <div class="guide-box">
+                <b>iPhoneの場合:</b><br>端末の設定アプリ ＞ Safari ＞ 通知 ＞ このサイトの通知をOFFにします。<br><br>
+                <b>Androidの場合:</b><br>ChromeのURLバーの左側にあるアイコン（鍵マーク等）をタップ ＞ 権限 ＞ 通知をブロックにします。
+            </div>
         </div>
     </div>
   
+    <!-- 隠し管理者用モーダル -->
     <div id="modal-admin" class="modal" onclick="closeModalOnOverlay(event, 'modal-admin')">
         <div class="modal-content admin-panel">
-            <div class="modal-header"><h3>🛠️ 管理者パネル</h3><button onclick="closeModal('modal-admin')">&times;</button></div>
+            <div class="modal-header">
+                <h3>🛠️ 管理者コントロールパネル</h3>
+                <button onclick="closeModal('modal-admin')">&times;</button>
+            </div>
             <label for="admin-target-select">遅延対象イベント:</label>
             <select id="admin-target-select"></select>
+            
             <div class="admin-buttons">
-                <button class="admin-btn delay" onclick="triggerDelayNotification(15)">📢 15分遅延</button>
-                <button class="admin-btn delay" onclick="triggerDelayNotification(30)">📢 30分遅延</button>
-                <button class="admin-btn reset" onclick="triggerDelayNotification(0)">✅ 通常進行</button>
+                <button class="admin-btn delay" onclick="triggerDelayNotification(15)">📢 15分遅延をブロードキャスト</button>
+                <button class="admin-btn delay" onclick="triggerDelayNotification(30)">📢 30分遅延をブロードキャスト</button>
+                <button class="admin-btn reset" onclick="triggerDelayNotification(0)">✅ 通常進行に戻す</button>
             </div>
         </div>
     </div>
@@ -475,57 +457,117 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // 【🎨 元の画面比率 1000 × 800 に固定】
-        const MAP_WIDTH = 1000;
-        const MAP_HEIGHT = 800;
-
-        const MAP_IMAGES = { '1F': 'map1f.png', '2F': 'map2f.png', '3F': 'map3f.png', '4F': 'map4f.png' };
+        // ==========================================
+        // 🎨 【カスタマイズ可能なデータエリア】
+        // ==========================================
+        /* 💡 5Fや新エリアを自由に追加可能。画像がない場合は自動的に 'map1f.png' になります */
+        const MAP_IMAGES = {
+            '1F': 'map1f.png',
+            '2F': 'map2f.png',
+            '3F': 'map3f.png',
+            '4F': 'map4f.png'
+        };
   
-        // 💡 2で作成するツールを使って導き出した正しいX, Yをここに上書きしてください！
+        /* 💡 ここにいくら店舗を増やしても、フロアタブが自動で連動生成されるようになりました */
         const shopData = [
-            { id: 1, floor: '1F', location: '新棟1階', title: '3-7：ポップコーン・わたあめ', genre: '食品販売',x: 103, y: 378, image: '', menu: 'なんと1クラスで二個も催しちゃってます！\nぜひ来てね！' },
-            { id: 2, floor: '2F', location: 'A棟2階', title: '2-7：喫茶 美和の館', genre: '食品販売',x: 410, y: 460, image: '', menu: '美味しいワッフルと飲み物を用意してお待ちしております！' },
-            { id: 3, floor: '1F', locat487ion: '新棟1階', title: '3-2：人形浄瑠璃部', genre: '展示・部活', x: 359, y: 460, image: '', menu: '伝統ある人形浄瑠璃の公演と人形展示中。' },
-            { id: 4, floor: '1F', location: '新棟1階', title: '商業科', genre: '展示・部活', x: 199, y: 347, image: '', menu: '商品開発や企業とのコラボレーションで作った作品の展示会です！' },
-            { id: 5, floor: '4F', location: 'A棟4階', title: '軽音楽部', genre: '体験・催し',x: 284, y: 474, image: '', menu: '軽音楽部元気はつらつにライブ中！！！きて！！！！！！！！' },
-            // 📍 体育館（比率を戻したため、現在は仮座標です。ツールで調べて修正してください）
-            { id: 6, floor: '1F', location: '体育館', title: '体育館イベント', genre: '展示・部活', x: 808, y: 263, image: '', menu: 'ステージ発表や各部活のメインパフォーマンスを行います！' }
-            { id: 7, floor: '1F', location: '新棟1階', title: 'マーケティング部', genre: '展示・部活',x: 103, y: 300, image: '', menu: '企業＆王子高校によって生まれたパンを販売中！！' },
-            
+            { id: 1, floor: '1F', location: '新棟1階', title: '3-7：ポップコーン・わたあめ', genre: '食品販売',x: 946, y: 253, image: '', menu: 'なんと1クラスで二個も催しちゃってます！ぜひ来てね' },
+            { id: 2, floor: '1F', location: '新棟1階', title: '3-2：人形浄瑠璃部', genre: '展示・部活', x: 410, y: 440, image: '', menu: '伝統ある人形浄瑠璃の公演と人形展示中。' },
+            { id: 3, floor: '1F', location: '新棟1階', title: '2-7組：喫茶 美和の館', genre: '食品販売', x: 432, y: 440, image: 'class-2-7.png', menu: '美味しいワッフルとお飲み物を用意してお待ちしております！' },
+            { id: 4, floor: '1F', location: '新棟1階', title: '商業科', genre: '展示・部活', x: 868, y: 489, image: '', menu: '商品開発や企業とのコラボレーションで作った作品の展示会です！来場者にはちょっとうれしいプレゼントが？！' },
+            { id: 5, floor: '4F', location: 'A棟4階', title: '軽音楽部', genre: '体験・催し', x: 295, y: 440, image: '', menu: 'アコースティックミニライブを開催中！' }
         ];
   
         const facilityData = [
-            { id: 'f1', name: "1F 事務室・AED", floor: "1F", x: 335, y: 640, icon: "🚑" },
-            { id: 'f2', name: "2F トイレ", floor: "2F", x: 610, y: 545, icon: "🚻" },
-            { id: 'f3', name: "3F トイレ", floor: "3F", x: 610, y: 545, icon: "🚻" },
-            { id: 'f4', name: "4F トイレ", floor: "4F", x: 610, y: 545, icon: "🚻" }
+            { name: "1F 事務室・AED", floor: "1F", x: 335, y: 640, icon: "🚑" },
+            { name: "2F トイレ", floor: "2F", x: 610, y: 545, icon: "🚻" },
+            { name: "3F トイレ", floor: "3F", x: 610, y: 545, icon: "🚻" },
+            { name: "4F トイレ", floor: "4F", x: 610, y: 545, icon: "🚻" }
         ];
   
+        /* 💡 3日目、4日目、あるいは「後夜祭」などを増やしても自動追従します */
         let timelineData = [
             { id: 1, day: 1, time: "10:00 - 11:00", name: "吹奏楽部：オープニング", delay: 0 },
             { id: 2, day: 1, time: "11:30 - 13:00", name: "軽音楽部：無敵ライブ", delay: 0 },
-            { id: 3, day: 2, time: "13:00 - 14:00", name: "ダンス部：ファイナル", delay: 0 },
-            { id: 4, day: 1, time: "14:00 - 15:30", name: "体育館イベント", delay: 0 }
+            { id: 3, day: 2, time: "13:00 - 14:00", name: "ダンス部：ファイナル", delay: 0 }
         ];
   
-        const noticeData = [{ title: "🔥 熱中症にご注意ください", sub: "こまめな水分補給をお願いします。" }];
+        const noticeData = [
+            { title: "🔥 熱中症にご注意ください", sub: "こまめな水分補給をお願いします。" },
+            { title: "🎒 落とし物・迷子について", sub: "1階職員室前の本部までお越しください。" }
+        ];
+  
         const ADMIN_PASSWORD = "ouji"; 
   
-        let currentFloor = '1F'; let currentDay = 1; let selectedTag = 'すべて'; let map; let currentImageLayer = null;
-        let markersGroup = []; let markerObjectsMap = {}; let activeSelectedPin = null; let activeSelectedFacility = null;
-        let favorites = JSON.parse(localStorage.getItem('festival_favs')) || []; let adminKnockCount = 0; let adminKnockTimeout;
+        // ==========================================
+        // ⚙️ 【システム処理エリア】
+        // ==========================================
+        let currentFloor = '1F';
+        let currentDay = 1;
+        let selectedTag = 'すべて';
+        let map;
+        let currentImageLayer = null;
+        let markersGroup = [];
+        let markerObjectsMap = {}; 
+        let activeSelectedPin = null; 
+        let favorites = JSON.parse(localStorage.getItem('festival_favs')) || [];
+        let adminKnockCount = 0;
+        let adminKnockTimeout;
+  
+        const MAP_WIDTH = 1000;
+        const MAP_HEIGHT = 800;
   
         window.onload = function() {
-            initImageMap(); renderShops(); renderTimeline(); initAdminSelect(); buildAllShopsModalList(); checkFirstAccessWelcome(); 
+            // 🔄 起動時の一番最初に入力データからタブ群を自動組み立てする
+            buildFloorTabs();
+            buildDayTabs();
+
+            initImageMap();
+            renderShops();
+            renderTimeline();
+            initAdminSelect();
+            buildAllShopsModalList();
+            checkFirstAccessWelcome(); 
+            
             document.getElementById('notice-list-container').innerHTML = noticeData.map(d => `<li class="greeting-card"><b>${d.title}</b><span style="display:block;color:var(--text-sub);font-size:0.8rem;margin-top:4px;">${d.sub}</span></li>`).join('');
-            setInterval(syncCloudAndCheckAlert, 3000); syncCloudAndCheckAlert(); 
+            
+            setInterval(syncCloudAndCheckAlert, 3000);
+            syncCloudAndCheckAlert(); 
         };
+
+        // 🔄 【新規追加】店舗データから一意のフロアを抽出してタブボタンを自動生成
+        function buildFloorTabs() {
+            const floors = Array.from(new Set(shopData.map(s => s.floor))).sort();
+            if (floors.length > 0 && !floors.includes(currentFloor)) {
+                currentFloor = floors[0];
+            }
+            const container = document.getElementById('floor-tab-container');
+            container.innerHTML = floors.map(f => {
+                const activeClass = f === currentFloor ? 'active' : '';
+                // 表示用テキストの調整（例: "1F" -> "1階"、それ以外はそのまま表示）
+                const label = f.endsWith('F') ? f.replace('F', '階') : f;
+                return `<button class="tab-btn ${activeClass}" onclick="switchFloor('${f}')">${label}</button>`;
+            }).join('');
+            document.getElementById('floor-title').innerText = `${currentFloor.endsWith('F') ? currentFloor.replace('F', '階') : currentFloor}の出店一覧`;
+        }
+
+        // 🔄 【新規追加】タイムラインデータから一意の日程を抽出してタブボタンを自動生成
+        function buildDayTabs() {
+            const days = Array.from(new Set(timelineData.map(t => t.day))).sort((a,b) => a-b);
+            if (days.length > 0 && !days.includes(currentDay)) {
+                currentDay = days[0];
+            }
+            const container = document.getElementById('day-tab-container');
+            container.innerHTML = days.map(d => {
+                const activeClass = d === currentDay ? 'active' : '';
+                return `<button id="day${d}-btn" class="day-btn ${activeClass}" onclick="switchDay(${d})">${d}日目</button>`;
+            }).join('');
+        }
   
         function initImageMap() {
             if (map) { map.remove(); }
             map = L.map('map', {
                 crs: L.CRS.Simple,
-                minZoom: -1.0, 
+                minZoom: -1.5, 
                 maxZoom: 1,
                 maxBounds: [[0, 0], [MAP_HEIGHT, MAP_WIDTH]],
                 maxBoundsViscosity: 1.0,
@@ -533,13 +575,15 @@
                 zoomSnap: 0.1
             });
             updateMapFloorImage();
-            map.on('click', function(e) { if (e.originalEvent.target.id === 'map' || e.originalEvent.target.tagName === 'img') { resetActivePinStyle(); } });
+            map.on('click', function() { resetActivePinStyle(); });
         }
   
         function updateMapFloorImage() {
             if (currentImageLayer) { map.removeLayer(currentImageLayer); }
-            currentImageLayer = L.imageOverlay(MAP_IMAGES[currentFloor] || 'map1f.png', [[0, 0], [MAP_HEIGHT, MAP_WIDTH]]).addTo(map);
-            map.setView([MAP_HEIGHT / 2, MAP_WIDTH / 2], -0.3); 
+            const imageUrl = MAP_IMAGES[currentFloor] || 'map1f.png';
+  
+            currentImageLayer = L.imageOverlay(imageUrl, [[0, 0], [MAP_HEIGHT, MAP_WIDTH]]).addTo(map);
+            map.setView([MAP_HEIGHT / 2, MAP_WIDTH / 2], -0.4); 
             updateMapMarkers();
         }
   
@@ -548,87 +592,136 @@
             document.querySelectorAll('.page-tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             event.currentTarget.classList.add('active');
-            if(pageId === 'map-page' && map) { setTimeout(() => { map.invalidateSize(); map.setView([MAP_HEIGHT / 2, MAP_WIDTH / 2], -0.3); }, 200); }
+            if(pageId === 'map-page' && map) {
+                setTimeout(() => { map.invalidateSize(); map.setView([MAP_HEIGHT / 2, MAP_WIDTH / 2], -0.4); }, 200);
+            }
         }
   
         function switchFloor(floor) {
             currentFloor = floor;
-            document.querySelectorAll('.tab-btn').forEach(b => { b.classList.toggle('active', b.innerText === floor || b.getAttribute('onclick')?.includes(`'${floor}'`)); });
-            document.getElementById('floor-title').innerText = `${floor}の出店一覧`;
-            resetActivePinStyle(); renderShops(); updateMapFloorImage();
+            // 🔄 動的生成された全タブボタンのアクティブクラスの付け替え
+            const container = document.getElementById('floor-tab-container');
+            container.querySelectorAll('.tab-btn').forEach(b => {
+                const onclickStr = b.getAttribute('onclick') || '';
+                b.classList.toggle('active', onclickStr.includes(`'${floor}'`));
+            });
+            
+            const displayTitle = floor.endsWith('F') ? floor.replace('F', '階') : floor;
+            document.getElementById('floor-title').innerText = `${displayTitle}の出店一覧`;
+            resetActivePinStyle();
+            renderShops();
+            updateMapFloorImage();
         }
   
-        function switchDay(day) { currentDay = day; document.getElementById('day1-btn').classList.toggle('active', day === 1); document.getElementById('day2-btn').classList.toggle('active', day === 2); renderTimeline(); }
+        function switchDay(day) {
+            currentDay = day;
+            const container = document.getElementById('day-tab-container');
+            container.querySelectorAll('.day-btn').forEach(b => {
+                const onclickStr = b.getAttribute('onclick') || '';
+                b.classList.toggle('active', onclickStr.includes(`(${day})`));
+            });
+            renderTimeline();
+        }
   
         function updateMapMarkers() {
-            markersGroup.forEach(m => map.removeLayer(m)); markersGroup = []; markerObjectsMap = {};
+            markersGroup.forEach(m => map.removeLayer(m));
+            markersGroup = [];
+            markerObjectsMap = {};
   
             shopData.filter(s => s.floor === currentFloor).forEach(shop => {
                 let pinColorClass = "pin-exhibit";
                 if (shop.genre === '食品販売') pinColorClass = "pin-food";
                 else if (shop.genre === '体験・催し') pinColorClass = "pin-dot-play";
   
-                const badgeHtml = shop.id === 6 ? `<div class="gym-delay-badge" id="gym-delay-badge">遅延が発生しています</div>` : '';
                 const customIcon = L.divIcon({
-                    html: `<div class="pin-dot ${pinColorClass}" id="marker-dot-${shop.id}">${badgeHtml}</div>`,
-                    className: 'custom-pin-icon', iconSize: [16, 16], iconAnchor: [8, 8]
+                    html: `<div class="pin-dot ${pinColorClass}" id="marker-dot-${shop.id}"></div>`,
+                    className: 'custom-pin-icon',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
                 });
-                const marker = L.marker([shop.y, shop.x], {icon: customIcon}).addTo(map).bindPopup(`<div class="popup-location">${shop.location}</div><div class="popup-title">${shop.title}</div>`, { autoPan: true });
-                marker.on('click', function() { highlightPin(shop.id); openShopDetailFromMap(shop.id); });
-                markersGroup.push(marker); markerObjectsMap[shop.id] = marker;
+  
+                const popupContent = `
+                    <div class="popup-location">${shop.location}</div>
+                    <div class="popup-title">${shop.title}</div>
+                `;
+  
+                const marker = L.marker([shop.y, shop.x], {icon: customIcon}).addTo(map).bindPopup(popupContent, { maxWidth: 150, minWidth: 120, autoPan: false });
+                
+                marker.on('click', function() {
+                    highlightPin(shop.id);
+                    openShopDetailFromMap(shop.id);
+                });
+  
+                markersGroup.push(marker);
+                markerObjectsMap[shop.id] = marker;
             });
   
             facilityData.filter(f => f.floor === currentFloor).forEach(facility => {
-                const customIcon = L.divIcon({ html: `<div class="pin-square" id="marker-facility-${facility.id}">${facility.icon}</div>`, className: 'custom-pin-icon', iconSize: [24, 24], iconAnchor: [12, 12] });
-                const marker = L.marker([facility.y, facility.x], {icon: customIcon}).addTo(map).bindPopup(`<b>${facility.name}</b>`, { autoPan: true });
-                marker.on('click', function() { highlightFacility(facility.id); });
+                const customIcon = L.divIcon({
+                    html: `<div class="pin-square">${facility.icon}</div>`,
+                    className: 'custom-pin-icon',
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+                const marker = L.marker([facility.y, facility.x], {icon: customIcon}).addTo(map).bindPopup(`<b>${facility.name}</b>`, { autoPan: false });
                 markersGroup.push(marker);
             });
-            checkGymDelayBadge();
         }
   
         function highlightPin(shopId) {
             resetActivePinStyle();
             const dotEl = document.getElementById(`marker-dot-${shopId}`);
-            if (dotEl) { dotEl.classList.add('selected'); activeSelectedPin = dotEl; document.getElementById('map').classList.add('has-selection'); }
+            if (dotEl) {
+                dotEl.classList.add('selected');
+                activeSelectedPin = dotEl;
+            }
         }
-        function highlightFacility(facilityId) {
-            resetActivePinStyle();
-            const facEl = document.getElementById(`marker-facility-${facilityId}`);
-            if (facEl) { facEl.classList.add('selected-facility'); activeSelectedFacility = facEl; document.getElementById('map').classList.add('has-selection'); }
-        }
+  
         function resetActivePinStyle() {
-            if (activeSelectedPin) { activeSelectedPin.classList.remove('selected'); activeSelectedPin = null; }
-            if (activeSelectedFacility) { activeSelectedFacility.classList.remove('selected-facility'); activeSelectedFacility = null; }
-            document.getElementById('map').classList.remove('has-selection');
+            if (activeSelectedPin) {
+                activeSelectedPin.classList.remove('selected');
+                activeSelectedPin = null;
+            }
         }
+  
         function openShopDetailFromMap(shopId) {
             document.querySelectorAll('.shop-details').forEach(d => d.classList.remove('open'));
             const detailDiv = document.getElementById(`details-${shopId}`);
-            if (detailDiv) { detailDiv.classList.add('open'); detailDiv.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            if (detailDiv) {
+                detailDiv.classList.add('open');
+                detailDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
   
         function renderShops() {
-            const container = document.getElementById('shop-list-container'); container.innerHTML = '';
+            const container = document.getElementById('shop-list-container');
+            container.innerHTML = '';
             const filtered = shopData.filter(shop => shop.floor === currentFloor && (selectedTag === 'すべて' || shop.genre === selectedTag));
-            if(filtered.length === 0) { container.innerHTML = '<p style="text-align:center; color:#9ca3af; font-weight:bold; padding:20px;">ありません</p>'; return; }
+  
+            if(filtered.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#9ca3af; font-weight:bold; padding:20px;">該当する出店がありません</p>';
+                return;
+            }
   
             filtered.forEach(shop => {
-                let genreClass = "genre-exhibit"; let badgeEmoji = "🎨";
+                let genreClass = "genre-exhibit";
+                let badgeEmoji = "🎨";
                 if(shop.genre === '食品販売') { genreClass = "genre-food"; badgeEmoji = "🍴"; }
                 else if(shop.genre === '体験・催し') { genreClass = "genre-play"; badgeEmoji = "🎮"; }
-                const card = document.createElement('div'); card.className = `shop-card-wrapper ${genreClass}`;
+  
+                const card = document.createElement('div');
+                card.className = `shop-card-wrapper ${genreClass}`;
                 card.innerHTML = `
                     <div class="shop-card" onclick="toggleAccordion(${shop.id})">
                         <span class="shop-loc">${shop.floor}</span>
-                        <div class="shop-title"><span>${shop.title}</span><span class="shop-genre">${badgeEmoji} ${shop.genre}</span></div>
+                        <div class="shop-title">${shop.title}<span class="shop-genre">${badgeEmoji} ${shop.genre}</span></div>
                         <i class="fa-solid fa-chevron-down" style="color:#9ca3af;"></i>
                     </div>
                     <div class="shop-details" id="details-${shop.id}">
                         <div class="logo-dummy">${shop.image ? `<img src="${shop.image}">` : 'NO IMAGE'}</div>
                         <div>
-                            <span style="font-size:0.75rem; font-weight:bold; color:var(--primary);">📋 メニュアル</span>
-                            <div class="shop-menu-text">${shop.menu}</div>
+                            <span style="font-size:0.75rem; font-weight:bold; color:var(--primary);">📋 メニュー</span>
+                            <div style="font-size:0.8rem; margin-bottom:8px; color:var(--text-main);">${shop.menu}</div>
                             <button class="map-go-btn" onclick="panToCoordinates(${shop.x}, ${shop.y}, ${shop.id}, '${shop.floor}')"><i class="fa-solid fa-map"></i> マップ上で選択</button>
                         </div>
                     </div>
@@ -639,17 +732,45 @@
   
         function panToCoordinates(x, y, shopId, targetFloor) {
             if (currentFloor !== targetFloor) { switchFloor(targetFloor); }
-            setTimeout(() => { map.setView([y, x], -0.1); highlightPin(shopId); if (markerObjectsMap[shopId]) { markerObjectsMap[shopId].openPopup(); } }, 250);
-            const scrollArea = document.querySelector('.scrollable-content'); if (scrollArea) scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => { 
+                map.setView([y, x], -0.2);
+                highlightPin(shopId);
+                if (markerObjectsMap[shopId]) {
+                    markerObjectsMap[shopId].openPopup();
+                }
+            }, 250);
+            const scrollArea = document.querySelector('.scrollable-content');
+            if (scrollArea) scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        function toggleAccordion(id) { const detail = document.getElementById(`details-${id}`); const isOpen = detail.classList.contains('open'); document.querySelectorAll('.shop-details').forEach(d => d.classList.remove('open')); if (!isOpen) detail.classList.add('open'); }
-        function filterTag(tag, element) { selectedTag = tag; document.querySelectorAll('.tag-btn').forEach(b => b.className = "tag-btn"); if(tag === 'すべて') element.classList.add('active-all'); else if(tag === '食品販売') element.classList.add('active-food'); else if(tag === '展示・部活') element.classList.add('active-exhibit'); else if(tag === '体験・催し') element.classList.add('active-play'); renderShops(); }
+  
+        function toggleAccordion(id) {
+            const detail = document.getElementById(`details-${id}`);
+            detail.classList.toggle('open');
+        }
+  
+        function filterTag(tag, element) {
+            selectedTag = tag;
+            document.querySelectorAll('.tag-btn').forEach(b => b.className = "tag-btn");
+            if(tag === 'すべて') element.classList.add('active-all');
+            else if(tag === '食品販売') element.classList.add('active-food');
+            else if(tag === '展示・部活') element.classList.add('active-exhibit');
+            else if(tag === '体験・催し') element.classList.add('active-play');
+            renderShops();
+        }
   
         function filterSidebarShops() {
-            const query = document.getElementById('sidebar-search-box').value.trim(); const resultsContainer = document.getElementById('sidebar-search-results'); resultsContainer.innerHTML = ''; if (query === '') return;
+            const query = document.getElementById('sidebar-search-box').value.trim();
+            const resultsContainer = document.getElementById('sidebar-search-results');
+            resultsContainer.innerHTML = '';
+            if (query === '') return;
+  
             shopData.filter(shop => shop.title.includes(query) || shop.menu.includes(query)).forEach(shop => {
-                let genreClass = "genre-exhibit"; if(shop.genre === '食品販売') genreClass = "genre-food"; else if(shop.genre === '体験・催し') genreClass = "genre-play";
-                const item = document.createElement('button'); item.className = `sidebar-result-item ${genreClass}`;
+                let genreClass = "genre-exhibit";
+                if(shop.genre === '食品販売') genreClass = "genre-food";
+                else if(shop.genre === '体験・催し') genreClass = "genre-play";
+  
+                const item = document.createElement('button');
+                item.className = `sidebar-result-item ${genreClass}`;
                 item.onclick = () => { toggleSidebar(); switchFloor(shop.floor); setTimeout(() => { panToCoordinates(shop.x, shop.y, shop.id, shop.floor); }, 300); };
                 item.innerHTML = `<div><span class="sidebar-result-floor">${shop.floor}</span><span class="sidebar-result-title">${shop.title}</span></div>`;
                 resultsContainer.appendChild(item);
@@ -657,51 +778,125 @@
         }
   
         function buildAllShopsModalList() {
-            const container = document.getElementById('all-shops-modal-container'); container.innerHTML = '';
-            const order = { '食品販売': 1, '展示・部活': 2, '体験・催し': 3 }; const sortedShops = [...shopData].sort((a, b) => order[a.genre] - order[b.genre]);
+            const container = document.getElementById('all-shops-modal-container');
+            container.innerHTML = '';
+            const order = { '食品販売': 1, '展示・部活': 2, '体験・催し': 3 };
+            const sortedShops = [...shopData].sort((a, b) => order[a.genre] - order[b.genre]);
+  
             sortedShops.forEach(shop => {
-                let genreClass = "genre-exhibit"; let badgeEmoji = "🎨"; if(shop.genre === '食品販売') { genreClass = "genre-food"; badgeEmoji = "🍴"; } else if(shop.genre === '体験・催し') { genreClass = "genre-play"; badgeEmoji = "🎮"; }
-                const btn = document.createElement('button'); btn.className = `sidebar-result-item ${genreClass}`; btn.style.width = "100%"; btn.style.marginBottom = "4px";
+                let genreClass = "genre-exhibit";
+                let badgeEmoji = "🎨";
+                if(shop.genre === '食品販売') { genreClass = "genre-food"; badgeEmoji = "🍴"; }
+                else if(shop.genre === '体験・催し') { genreClass = "genre-play"; badgeEmoji = "🎮"; }
+  
+                const btn = document.createElement('button');
+                btn.className = `sidebar-result-item ${genreClass}`;
+                btn.style.width = "100%"; btn.style.display = "block"; btn.style.marginBottom = "4px";
                 btn.onclick = () => { closeModal('modal-all-shops'); switchFloor(shop.floor); setTimeout(() => { panToCoordinates(shop.x, shop.y, shop.id, shop.floor); }, 300); };
-                btn.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;"><div><span class="sidebar-result-floor">${shop.floor}</span><span class="sidebar-result-title">${shop.title}</span></div><span style="font-size:0.7rem; color:var(--text-sub); font-weight:bold;">${badgeEmoji} ${shop.genre}</span></div>`;
+                btn.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;"\>
+                        <div><span class="sidebar-result-floor">${shop.floor}</span><span class="sidebar-result-title">${shop.title}</span></div>
+                        <span style="font-size:0.7rem; color:var(--text-sub); font-weight:bold;">${badgeEmoji} ${shop.genre}</span>
+                    </div>
+                `;
                 container.appendChild(btn);
             });
         }
   
         function renderTimeline() {
-            const container = document.getElementById('timeline-container'); container.innerHTML = '';
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
             timelineData.filter(t => t.day === currentDay).forEach(slot => {
-                const isFav = favorites.includes(slot.id); const isDelayed = slot.delay > 0;
-                const div = document.createElement('div'); div.className = `time-slot ${isDelayed ? 'status-delayed' : ''}`;
-                div.innerHTML = `<div><span class="time-text">${slot.time}</span><div class="band-name">${slot.name}</div><span class="band-status ${isDelayed ? 'delayed' : ''}">${isDelayed ? `⚠️ ${slot.delay}分遅延中` : '✅ 通常通り'}</span></div><button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${slot.id})">★</button>`;
+                const isFav = favorites.includes(slot.id);
+                const isDelayed = slot.delay > 0;
+                const div = document.createElement('div');
+                div.className = `time-slot ${isDelayed ? 'status-delayed' : ''}`;
+                div.innerHTML = `
+                    <div>
+                        <span class="time-text">${slot.time}</span>
+                        <div class="band-name">${slot.name}</div>
+                        <span class="band-status ${isDelayed ? 'delayed' : ''}">${isDelayed ? `⚠️ ${slot.delay}分遅延中` : '✅ 通常通り'}</span>
+                    </div>
+                    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${slot.id})">★</button>
+                `;
                 container.appendChild(div);
             });
         }
   
-        function toggleFavorite(id) { if (favorites.includes(id)) { favorites = favorites.filter(fid => fid !== id); } else { favorites.push(id); } localStorage.setItem('festival_favs', JSON.stringify(favorites)); renderTimeline(); }
-        function handleAdminKnock() { clearTimout(adminKnockTimeout); adminKnockCount++; if (adminKnockCount >= 5) { adminKnockCount = 0; const pass = prompt("PWを入力:"); if (pass === ADMIN_PASSWORD) openModal('modal-admin'); } adminKnockTimeout = setTimeout(() => { adminKnockCount = 0; }, 2000); }
-        function checkFirstAccessWelcome() { if (!localStorage.getItem('festival_welcome_seen')) { setTimeout(() => { document.getElementById('modal-welcome-push').classList.add('show'); }, 800); } }
-        function closeWelcomeModal() { localStorage.setItem('festival_welcome_seen', 'true'); closeModal('modal-welcome-push'); }
-        function triggerDelayNotification(minutes) { const targetName = document.getElementById('admin-target-select').value; localStorage.setItem('festival_live_broadcast', JSON.stringify({ target: targetName, delay: minutes, timestamp: Date.now() })); closeModal('modal-admin'); syncCloudAndCheckAlert(); }
+        function toggleFavorite(id) {
+            if (favorites.includes(id)) { favorites = favorites.filter(fid => fid !== id); } 
+            else { favorites.push(id); }
+            localStorage.setItem('festival_favs', JSON.stringify(favorites));
+            renderTimeline();
+        }
+  
+        function handleAdminKnock() {
+            clearTimeout(adminKnockTimeout);
+            adminKnockCount++;
+            if (adminKnockCount >= 5) {
+                adminKnockCount = 0;
+                const pass = prompt("管理者パスワードを入力してください:");
+                if (pass === ADMIN_PASSWORD) openModal('modal-admin');
+                else if(pass !== null) alert("パスワードが違います。");
+            }
+            adminKnockTimeout = setTimeout(() => { adminKnockCount = 0; }, 2000);
+        }
+  
+        function checkFirstAccessWelcome() {
+            const hasSeen = localStorage.getItem('festival_welcome_seen');
+            if (!hasSeen) {
+                setTimeout(() => {
+                    document.getElementById('modal-welcome-push').classList.add('show');
+                }, 800);
+            }
+        }
+        function closeWelcomeModal() {
+            localStorage.setItem('festival_welcome_seen', 'true');
+            closeModal('modal-welcome-push');
+        }
+  
+        function triggerDelayNotification(minutes) {
+            const targetName = document.getElementById('admin-target-select').value;
+            const broadcastPayload = { target: targetName, delay: minutes, timestamp: Date.now() };
+            localStorage.setItem('festival_live_broadcast', JSON.stringify(broadcastPayload));
+            alert(`【送信完了】${targetName}の${minutes}分遅延速報を配信しました。`);
+            closeModal('modal-admin');
+            syncCloudAndCheckAlert(); 
+        }
   
         function syncCloudAndCheckAlert() {
-            const raw = localStorage.getItem('festival_live_broadcast'); if (!raw) return; const data = JSON.parse(raw);
+            const raw = localStorage.getItem('festival_live_broadcast');
+            if (!raw) return;
+            const data = JSON.parse(raw);
+  
             timelineData.forEach(slot => {
-                if (slot.name === data.target && slot.delay !== data.delay) {
-                    slot.delay = data.delay; renderTimeline();
-                    document.getElementById('alert-message').innerText = data.delay > 0 ? `遅延: ${data.target} (${data.delay}分)` : "全ステージ通常通り";
-                    document.getElementById('global-alert').style.display = 'flex';
-                    const lastSeenPopupKey = `popup_seen_${data.target}_${data.delay}_${data.timestamp}`;
-                    if (!localStorage.getItem(lastSeenPopupKey)) {
-                        document.getElementById('sync-alert-text').innerText = data.delay > 0 ? `【進行変更】\n「${data.target}」に現在【${data.delay}分】の遅れが発生しています！` : `【復旧】\n「${data.target}」は通常通りに戻りました。`;
-                        document.getElementById('modal-sync-alert').classList.add('show'); localStorage.setItem(lastSeenPopupKey, 'true'); 
+                if (slot.name === data.target) {
+                    if (slot.delay !== data.delay) {
+                        slot.delay = data.delay;
+                        renderTimeline();
+                        
+                        const alertBar = document.getElementById('global-alert');
+                        document.getElementById('alert-message').innerText = data.delay > 0 ? `遅延発生: ${data.target} (${data.delay}分遅れ)` : "全ステージ通常通り";
+                        alertBar.style.display = 'flex';
+  
+                        const lastSeenPopupKey = `popup_seen_${data.target}_${data.delay}_${data.timestamp}`;
+                        if (!localStorage.getItem(lastSeenPopupKey)) {
+                            const msg = data.delay > 0 
+                                ? `【進行変更】\nお気に入りや注目のステージ「${data.target}」に、現在【${data.delay}分】の遅れが発生しています！スケジュールを確認してください。` 
+                                : `【復旧連絡】\n遅延していた「${data.target}」は、現在通常通りの進行に戻りました！`;
+                            
+                            document.getElementById('sync-alert-text').innerText = msg;
+                            document.getElementById('modal-sync-alert').classList.add('show');
+                            localStorage.setItem(lastSeenPopupKey, 'true'); 
+                        }
                     }
                 }
             });
-            checkGymDelayBadge();
         }
-        function checkGymDelayBadge() { const badge = document.getElementById('gym-delay-badge'); if (!badge) return; const gymEvent = timelineData.find(t => t.name === "体育館イベント"); badge.style.display = (gymEvent && gymEvent.delay > 0) ? 'block' : 'none'; }
-        function initAdminSelect() { document.getElementById('admin-target-select').innerHTML = timelineData.map(t => `<option value="${t.name}">${t.name}</option>`).join(''); }
+  
+        function initAdminSelect() {
+            document.getElementById('admin-target-select').innerHTML = timelineData.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+        }
         function closeAlertBar() { document.getElementById('global-alert').style.display = 'none'; }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('show'); }
         function openModal(id) { toggleSidebar(); document.getElementById(id).classList.add('show'); }
